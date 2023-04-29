@@ -532,15 +532,11 @@ window.onload = function () {
   gDiffTime = 0;
   gStopTime = gResumeTime = gStopIntervalTime = gTImeFowardBack = 0;
   gSpeedController = 60;  // 60倍速で表示
-  // init(); // 初期化シーケンス
-  // chartDraw();
 };
 
 ///////////////////////////////////////////////////////
 // 初期化処理
 function init() {
-  gStartTime = performance.now();
-  
   // 開始時刻設定(デファルトは8時)
   gTime = gCalendarTime;
   gTime.setFullYear(2023);          //　デモの際は日付固定
@@ -554,13 +550,11 @@ function init() {
 
   
   // JSONデータファイル読み込み
-
   // サーバーから読み込む
   // let url = 'http://localhost:8080/data.json';
   // fetch(url)
   // .then( response => response.json())
   // .then( data => console.log(data));
-
 
   // HTMLべた書き（スタンドアロンモード）
   for (let data of gJSON) {
@@ -570,19 +564,21 @@ function init() {
   dataAnalysis();
   descriptonUpdate();
   chartDraw();
+  clock();
 }
 
 ///////////////////////////////////////////////////////
 // FPS　Controller
 function dispUpdate() {
+  gDescriptionMode = gModeSelecter.value;
+
   if (gTimerStopFlag == 0) {
+    // 開始時間からの経過時間を開始タイムスタンプに加算
     gDiffTime = performance.now() - gStartTime - gStopIntervalTime + (gTImeFowardBack*FORWARD_UNIT);
+    gTime.setTime(gStartStamp + gDiffTime * gSpeedController);
 
     clock();
-    Animationdraw();
-
-    gDescriptionMode = gModeSelecter.value;
-
+    Animationdraw(); 
     requestAnimationFrame(dispUpdate);
   } else {
     console.log("Stop");
@@ -597,6 +593,7 @@ document.addEventListener("keydown", (e) => {
     // Push 'Enter' key  -> 描画スタート
     if (e.key === "Enter") {
         gTimerStopFlag = 0;
+        gStartTime = performance.now();
         dispUpdate();
     }
     // Push 'Space' key -> 描画一時停止 or 再開
@@ -744,9 +741,6 @@ function createGradient (ctx, pallets, width, height) {
 ///////////////////////////////////////////////////////
 // デジタル時計表示
 const clock = () => {
-  // 開始時間からの経過時間を開始タイムスタンプに加算
-  gTime.setTime(gStartStamp + gDiffTime * gSpeedController);
-
   // 年を取得
   let year = gTime.getFullYear();
   // 月を取得
