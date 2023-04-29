@@ -14,7 +14,9 @@ const HUKUYAKU_WAIT = Symbol();
 const HUKUYAKU = Symbol();
 const ZANCHI = Symbol();
 // グローバル変数
+let gHomeFlag;
 let gTime = new Date();
+let gCalendarTime = new Date();
 let gStartStamp;
 let gDiffTime;
 let gStartTime;
@@ -525,22 +527,22 @@ function chartDraw() {
 ///////////////////////////////////////////////////////
 //　ページ読み込み時の処理
 window.onload = function () {
-  gDiffTime = 0;
+  gHomeFlag = 1;
   gTimerStopFlag = 1;
+  gDiffTime = 0;
   gStopTime = gResumeTime = gStopIntervalTime = gTImeFowardBack = 0;
   gSpeedController = 60;  // 60倍速で表示
   // init(); // 初期化シーケンス
-  chartDraw();
+  // chartDraw();
 };
 
 ///////////////////////////////////////////////////////
 // 初期化処理
 function init() {
   gStartTime = performance.now();
-
   
   // 開始時刻設定(デファルトは8時)
-  gTime = gCalendar.valueAsDate;
+  gTime = gCalendarTime;
   gTime.setFullYear(2023);          //　デモの際は日付固定
   gTime.setMonth(2);                //　デモの際は日付固定
   gTime.setDate(13);                //　デモの際は日付固定
@@ -568,7 +570,6 @@ function init() {
   dataAnalysis();
   descriptonUpdate();
   chartDraw();
-
 }
 
 ///////////////////////////////////////////////////////
@@ -592,34 +593,33 @@ function dispUpdate() {
 // イベントリスナー
 document.addEventListener("keydown", (e) => {
 
-  // Push 'Enter' key  -> 描画スタート
-  if (e.key === "Enter") {
-    if (gTimerStopFlag === 1) {
-      gTimerStopFlag = 0;
-      init();
-      dispUpdate();
+  if (gHomeFlag === 0) {
+    // Push 'Enter' key  -> 描画スタート
+    if (e.key === "Enter") {
+        gTimerStopFlag = 0;
+        dispUpdate();
     }
-  }
-  // Push 'Space' key -> 描画一時停止 or 再開
-  if (e.key === " ") {
-    if (gTimerStopFlag === 0) {
-      gTimerStopFlag = 1;
-      gStopTime = performance.now(); //ストップした時間
-    } else {
-      gTimerStopFlag = 0;
-      gResumeTime = performance.now(); // 再開した時間
-      gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
-      dispUpdate();
+    // Push 'Space' key -> 描画一時停止 or 再開
+    if (e.key === " ") {
+      if (gTimerStopFlag === 0) {
+        gTimerStopFlag = 1;
+        gStopTime = performance.now(); //ストップした時間
+      } else {
+        gTimerStopFlag = 0;
+        gResumeTime = performance.now(); // 再開した時間
+        gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
+        dispUpdate();
+      }
     }
-  }
-  // Push Arrow key -> 早送り、巻き戻し
-  if (e.key === 'ArrowRight') {
-    gTImeFowardBack++;
-    if (gTimerStopFlag === 1) {
-      dispUpdate();
+    // Push Arrow key -> 早送り、巻き戻し
+    if (e.key === 'ArrowRight') {
+      gTImeFowardBack++;
+      if (gTimerStopFlag === 1) {
+        dispUpdate();
+      }
+    } else if (e.key === 'Arrow  Left') {
+      gTImeFowardBack--;
     }
-  } else if (e.key === 'Arrow  Left') {
-    gTImeFowardBack--;
   }
 });
 
@@ -676,7 +676,9 @@ gInitBtn.addEventListener("click", (e) => {
   } else {
     document.getElementById("main-display").style.zIndex = 10;
     document.getElementById("setting-display").style.display = 'none';
-    // init();
+    gCalendarTime = gCalendar.valueAsDate;
+    gHomeFlag = 0;
+    init();
   }
 });
 
