@@ -89,7 +89,6 @@ const gFastForwardBtn = document.getElementById('fastforward-btn');
 const gInitBtn = document.getElementById('initial-btn');
 const gCalendar = document.getElementById('calendar');
 
-
 ///////////////////////////////////////////////////////
 // 患者クラス定義
 class Patient {
@@ -192,7 +191,6 @@ class Patient {
     textDisp(ctx, this.id, this.width/2, this.mY+MESH-2);           // 処方箋番号表示
   }
 }
-
 
 
 ///////////////////////////////////////////////////////
@@ -332,7 +330,6 @@ function dataAnalysis() {
           }
         );
       }
-
     }
 
     // １時間毎の処方箋枚数をカウント
@@ -421,7 +418,7 @@ function descriptonUpdate() {
       li[i].style.backgroundColor = gTimeColorPallets[i];
       ul.appendChild(li[i]);
     }
-  } else {      // 担当者表示モード
+  } else {                                    // 担当者表示モード
     for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
       li[i] = document.createElement('li');
       li[i].textContent = gAnalysisiData.AllMember[i];
@@ -429,7 +426,6 @@ function descriptonUpdate() {
       ul.appendChild(li[i]);
     }
   }
-
 }
 
 ///////////////////////////////////////////////////////
@@ -547,7 +543,6 @@ function init() {
   gTime.setSeconds(0);
   gTime.setMilliseconds(0);
   gStartStamp = gTime.getTime(); // 開始時刻(8:00)のタイムスタンプ取得
-
   
   // JSONデータファイル読み込み
   // サーバーから読み込む
@@ -561,10 +556,13 @@ function init() {
     gPatients.push(new Patient(data));
   }
 
+  gTimerStopFlag = 0;
+  gStartTime = performance.now();
+  
   dataAnalysis();
   descriptonUpdate();
   chartDraw();
-  clock();
+  dispUpdate();
 }
 
 ///////////////////////////////////////////////////////
@@ -590,12 +588,6 @@ function dispUpdate() {
 document.addEventListener("keydown", (e) => {
 
   if (gHomeFlag === 0) {
-    // Push 'Enter' key  -> 描画スタート
-    if (e.key === "Enter") {
-        gTimerStopFlag = 0;
-        gStartTime = performance.now();
-        dispUpdate();
-    }
     // Push 'Space' key -> 描画一時停止 or 再開
     if (e.key === " ") {
       if (gTimerStopFlag === 0) {
@@ -614,7 +606,7 @@ document.addEventListener("keydown", (e) => {
       if (gTimerStopFlag === 1) {
         dispUpdate();
       }
-    } else if (e.key === 'Arrow  Left') {
+    } else if (e.key === 'ArrowLeft') {
       gTImeFowardBack--;
     }
   }
@@ -666,7 +658,7 @@ gModeSelecter.addEventListener("change", (e) => {
   descriptonUpdate();
 });
 
-// 分析画面への遷移　
+// ホーム画面から分析画面への遷移　
 gInitBtn.addEventListener("click", (e) => {
   if (gCalendar.valueAsDate === null) {
     alert("日時を選択してください");
@@ -690,7 +682,6 @@ function roundedRect(ctx, x, y, width, height, radius) {
   ctx.arcTo(x + width, y + height, x + width, y + height - radius, radius);
   ctx.arcTo(x + width, y, x + width - radius, y, radius);
   ctx.arcTo(x, y, x, y + radius, radius);
-
   ctx.fill();
 }
 
