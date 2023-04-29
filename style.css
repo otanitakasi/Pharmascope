@@ -1,0 +1,131 @@
+/* Google Fonts 読み込み */
+@import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
+
+
+#setting-display {
+  padding: 50px;
+  color: white;
+  width: 100%;
+  height: 120%;
+  align-items: center;
+  background-color: #15151e;
+  position: absolute;
+  z-index: 2;
+}
+
+#main-display {
+  position: absolute;
+  z-index: 1;
+}
+
+/* 時計を囲うコンテナー */
+.clock-container {
+  width: 100%;
+  height: 100px;
+  background-color: #15151e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* 時計の共通スタイル */
+.clock {
+  font-family: "Share Tech Mono", monospace;
+  color: #daf6ff;
+  text-shadow: 0 0 20px #0aafe6;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* 日付のスタイル */
+.clock-date {
+  font-size: 10.5px;
+}
+/* 時間のスタイル */
+.clock-time {
+  font-size: 25px;
+}
+
+.upper-left {
+  padding: 30px;
+}
+
+/* メイン領域を囲うコンテナー */
+.main-container {
+  width: 100%;
+  height: 330px;
+  background-color: #15151e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: "Noto Sans JP";
+  color: #daf6ff;
+  text-shadow: 0 0 20px #0aafe6;
+  margin:0%;
+  padding: 0%;
+}
+
+.stage-label {
+  width: 100%;
+  height: 30px;
+  background-color: #15151e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* text-align: center; */
+  font-family: "Noto Sans JP";
+  color: #daf6ff;
+  text-shadow: 0 0 20px #0aafe6;
+  padding-top: 1%;
+  font-size: 11px;
+}
+
+.data-analysis {
+  height: 330px;
+  color: #daf6ff;
+  text-shadow: 0 0 20px #0aafe6;
+  font-family: "Noto Sans JP";
+  font-size: 11px;
+}
+
+.animation-area {
+  height: 100%;
+  box-shadow: 0px 0px 1px 0.1px #daf6ff;
+  padding: 0%;
+}
+
+.wait-time-classfy {
+  margin:1%;
+  background-color: #15151e;
+  color: black;
+  font-size: 0.8em;
+}
+
+.chart-area {
+  width: 100%;
+  margin-top: 20px;
+}
+
+#description-list {
+  list-style: none;
+  margin:2%;
+  font-size: 1.1em;
+}
+
+/* 文字サイズ調整 */
+@media screen and (max-width: 500px) {
+  .clock-date {
+    font-size: 5vw;
+  }
+  .clock-time {
+    font-size: 20vw;
+  }
+  .main-container {
+    font-size: 20vw;
+  }
+  .lower-container {
+    font-size: 10vw;
+  }
+}
