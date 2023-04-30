@@ -96,8 +96,6 @@ class replayControllerCenterDisp {
     this.ctx = _ctx;
     this.x = 0;
     this.y = 100;
-    this.width = 50;
-    this.height = 60;
     this.replayImg = new Image();
     this.replayImg.src = './img/play_center.png';
     this.pauseImg = new Image();
@@ -114,6 +112,7 @@ class replayControllerCenterDisp {
     if (this.dispCnt < this.cntMax) {
       this.img = (gTimerStopFlag === 0) ? this.replayImg : this.pauseImg;
       this.x = this.cntMax - this.dispCnt;
+      this.y = 100 + this.cntMax - this.dispCnt;
       this.ctx.drawImage(this.img, this.x, this.y, this.dispCnt*3, this.dispCnt*3);
       this.dispCnt++;
     }
@@ -629,6 +628,19 @@ function dispUpdate() {
 }
 
 ///////////////////////////////////////////////////////
+// リプレイコントローラー
+function replayController() {
+  gTimerStopFlag = 0;
+  gResumeTime = performance.now(); // 再開した時間
+  gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
+  dispUpdate();
+}
+function pauseController() {
+  gTimerStopFlag = 1;
+  gStopTime = performance.now(); //ストップした時間
+}
+
+///////////////////////////////////////////////////////
 // イベントリスナー
 document.addEventListener("keydown", (e) => {
 
@@ -636,14 +648,11 @@ document.addEventListener("keydown", (e) => {
     // Push 'Space' key -> 描画一時停止 or 再開
     if (e.key === " ") {
       if (gTimerStopFlag === 0) {
-        gTimerStopFlag = 1;
-        gStopTime = performance.now(); //ストップした時間
+        pauseController();
       } else {
-        gTimerStopFlag = 0;
-        gResumeTime = performance.now(); // 再開した時間
-        gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
-        dispUpdate();
+        replayController();
       }
+      gReplayCtrl.dispCntInit();
     }
     // Push Arrow key -> 早送り、巻き戻し
     if (e.key === 'ArrowRight') {
@@ -657,31 +666,27 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
-// 再生スタート
+// 再生スタートボタン処理
 gPlayBtn.addEventListener("mousedown", (e) => {
   if (gTimerStopFlag === 1) {
     gPlayBtn.style.transform = "scale(1.3)";
-    gTimerStopFlag = 0;
-    gResumeTime = performance.now(); // 再開した時間
-    gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
-    dispUpdate();
+    replayController();
   }
 });
 gPlayBtn.addEventListener("mouseup", (e) => {
   gPlayBtn.style.transform = "scale(1)";
 });
-// 再生ストップ
+// 再生ストップボタン処理
 gPauseBtn.addEventListener("mousedown", (e) => {
   if (gTimerStopFlag === 0) {
     gPauseBtn.style.transform = "scale(1.3)";
-    gTimerStopFlag = 1;
-    gStopTime = performance.now(); //ストップした時間
+    pauseController();
   }
 });
 gPauseBtn.addEventListener("mouseup", (e) => {
   gPauseBtn.style.transform = "scale(1)";
 });
-// 早送り
+// 早送りボタン処理
 gFastForwardBtn.addEventListener("mousedown", (e) => {
   gFastForwardBtn.style.transform = "scale(1.3)";
   gTImeFowardBack++;
@@ -689,7 +694,7 @@ gFastForwardBtn.addEventListener("mousedown", (e) => {
 gFastForwardBtn.addEventListener("mouseup", (e) => {
   gFastForwardBtn.style.transform = "scale(1)";
 });
-// 巻き戻し
+// 巻き戻しボタン処理
 gBackForwardBtn.addEventListener("mousedown", (e) => {
   gBackForwardBtn.style.transform = "scale(1.3)";
   gTImeFowardBack--;
@@ -697,6 +702,16 @@ gBackForwardBtn.addEventListener("mousedown", (e) => {
 gBackForwardBtn.addEventListener("mouseup", (e) => {
   gBackForwardBtn.style.transform = "scale(1)";
 });
+
+// アニメーションエリアの再生コントロール
+chouzaiKansaCanvas.addEventListener("click", (e)=> {
+  if (gTimerStopFlag === 1) {
+    replayController();
+  } else {
+    pauseController();
+  }
+  gReplayCtrl.dispCntInit();
+})
 
 //　表示モード切替
 gModeSelecter.addEventListener("change", (e) => {
@@ -715,19 +730,6 @@ gInitBtn.addEventListener("click", (e) => {
     init();
   }
 });
-
-chouzaiKansaCanvas.addEventListener("click", (e)=> {
-  if (gTimerStopFlag === 1) {
-    gTimerStopFlag = 0;
-    gResumeTime = performance.now(); // 再開した時間
-    gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
-    dispUpdate();
-  } else {
-    gTimerStopFlag = 1;
-    gStopTime = performance.now(); //ストップした時間
-  }
-  gReplayCtrl.dispCntInit();
-})
 
 /////////////////////////////////////////////////////////////////////////////////////
 //    ユーティリティ
