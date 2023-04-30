@@ -17,7 +17,7 @@ const ZANCHI = Symbol();
 let gHomeFlag;
 let gTime = new Date();
 let gCalendarTime = new Date();
-let gStartStamp;
+let gOpenStamp;
 let gDiffTime;
 let gStartTime;
 let gStopTime;
@@ -319,7 +319,6 @@ function Animationdraw() {
 
 ///////////////////////////////////////////////////////
 // データ分析
-// テーブルデータ作成
 function dataAnalysis() {
   
   let waitTime;
@@ -347,7 +346,7 @@ function dataAnalysis() {
 
   for (let patient of gPatients) {
     // 8:00を基準とした入力開始時間
-    timeISFromStart = (patient.timeIS.getTime() - gStartStamp) / 1000 / 60;
+    timeISFromStart = (patient.timeIS.getTime() - gOpenStamp) / 1000 / 60;
 
     //　入力開始から服薬指導開始までを待ち時間と定義（残置、90分以上を除く）
     if (patient.zanchiPerson.length === 0) {
@@ -574,14 +573,14 @@ window.onload = function () {
 function init() {
   // 開始時刻設定(デファルトは8時)
   gTime = gCalendarTime;
-  gTime.setFullYear(2023);          //　デモの際は日付固定
-  gTime.setMonth(2);                //　デモの際は日付固定
-  gTime.setDate(13);                //　デモの際は日付固定
+  gTime.setFullYear(2023);          //　デモ時日付固定
+  gTime.setMonth(2);                //　デモ時日付固定
+  gTime.setDate(13);                //　デモ時日付固定
   gTime.setHours(8);
   gTime.setMinutes(0);
   gTime.setSeconds(0);
   gTime.setMilliseconds(0);
-  gStartStamp = gTime.getTime(); // 開始時刻(8:00)のタイムスタンプ取得
+  gOpenStamp = gTime.getTime(); // 開始時刻(8:00)のタイムスタンプ取得
   
   // JSONデータファイル読み込み
   // サーバーから読み込む
@@ -607,14 +606,13 @@ function init() {
 ///////////////////////////////////////////////////////
 // FPS　Controller
 function dispUpdate() {
-  gDescriptionMode = gModeSelecter.value;
-
+  
   if (gTimerStopFlag == 0) {
     // 開始時間からの経過時間を開始タイムスタンプに加算
     gDiffTime = performance.now() - gStartTime - gStopIntervalTime + (gTImeFowardBack*FORWARD_UNIT);
-    gTime.setTime(gStartStamp + gDiffTime * gSpeedController);
-
-
+    gTime.setTime(gOpenStamp + gDiffTime * gSpeedController);
+    
+    
     gReplayCtrl.draw();
     clock();
     Animationdraw(); 
@@ -623,8 +621,10 @@ function dispUpdate() {
     console.log("Stop");
     // gReplayCtrl.draw();
     // requestAnimationFrame(dispUpdate);
-
+    
   }
+
+  gDescriptionMode = gModeSelecter.value;
 }
 
 ///////////////////////////////////////////////////////
