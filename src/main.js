@@ -90,16 +90,21 @@ const gCalendar = document.getElementById('calendar');
 ////////////////////////////////////////////////////////
 // 画面中央の再生・停止表示コントローラークラス
 class replayControllerCenterDisp {
-  constructor(_ctx) {
-    this.ctx = _ctx;
+  constructor() {
+    this.ctx;
     this.x = 0;
     this.y = 100;
     this.replayImg = new Image();
     this.replayImg.src = './img/play_center.png';
     this.pauseImg = new Image();
     this.pauseImg.src = './img/pause_center.png';
-    this.cntMax = 25;
+    this.forwardImg = new Image();
+    this.forwardImg.src = './img/forward_center.png';
+    this.backwardImg = new Image();
+    this.backwardImg.src = './img/backward_center.png';
+    this.cntMax = 30;
     this.dispCnt = this.cntMax;
+    this.flag = 0;
   }
 
   dispCntInit() {
@@ -108,15 +113,20 @@ class replayControllerCenterDisp {
   
   draw() {
     if (this.dispCnt < this.cntMax) {
-      this.img = (gTimerStopFlag === 0) ? this.replayImg : this.pauseImg;
+      this.img = (this.flag === 0) ? this.replayImg :
+                 (this.flag === 1) ? this.pauseImg :
+                 (this.flag === 2) ? this.forwardImg : this.backwardImg;
+      this.ctx = (this.flag === 0) ? gChouzaiKansaCtx : 
+                 (this.flag === 1) ? gChouzaiKansaCtx :
+                 (this.flag === 2) ? gHukuyakuCtx : gPrescriptWaitCtx;
       this.x = this.cntMax - this.dispCnt;
       this.y = 100 + this.cntMax - this.dispCnt;
-      this.ctx.drawImage(this.img, this.x, this.y, this.dispCnt*3, this.dispCnt*3);
+      this.ctx.drawImage(this.img, this.x, this.y, this.dispCnt*2, this.dispCnt*2);
       this.dispCnt++;
     }
   }
 };
-const gReplayCtrl = new replayControllerCenterDisp(gChouzaiKansaCtx);
+const gReplayCtrl = new replayControllerCenterDisp();
 
 ///////////////////////////////////////////////////////
 // 患者クラス
@@ -619,16 +629,20 @@ function dispUpdate() {
 function replayController() {
   gTimerStopFlag = 0;
   gStartTime = performance.now(); // 再開時の時間を開始時間に再設定
+  gReplayCtrl.flag = 0;
 }
 function pauseController() {
   gTimerStopFlag = 1;
   gBaseTime = gTime.getTime(); //ストップ時の経過時間
+  gReplayCtrl.flag = 1;
 }
 function backforwardController(forwardFlag) {
   if (forwardFlag === 1) {
     gBaseTime = gTime.getTime() + FORWARD_UNIT; //現時刻に加算して時間を進める
+    gReplayCtrl.flag = 2;
   } else {
     gBaseTime = gTime.getTime() - BACK_UNIT; //現時刻に減算して時間を戻す
+    gReplayCtrl.flag = 3;
   }
   gStartTime = performance.now(); // 経過時間を初期化
 }
@@ -644,7 +658,6 @@ document.addEventListener("keydown", (e) => {
       } else {
         replayController();
       }
-      gReplayCtrl.dispCntInit();
     }
     // Push Arrow key -> 早送り、巻き戻し
     if (e.key === 'ArrowRight') {
@@ -652,6 +665,8 @@ document.addEventListener("keydown", (e) => {
     } else if (e.key === 'ArrowLeft') {
       backforwardController(0);
     }
+
+    gReplayCtrl.dispCntInit();
   }
 });
 
@@ -697,6 +712,22 @@ gBackForwardBtn.addEventListener("mouseup", (e) => {
 });
 
 // アニメーションエリアの再生コントロール
+prescriptWaitCanvas.addEventListener("click", (e)=> {
+  if (gTimerStopFlag === 1) {
+    replayController();
+  } else {
+    pauseController();
+  }
+  gReplayCtrl.dispCntInit();
+});
+prescriptCanvas.addEventListener("click", (e)=> {
+  if (gTimerStopFlag === 1) {
+    replayController();
+  } else {
+    pauseController();
+  }
+  gReplayCtrl.dispCntInit();
+});
 chouzaiKansaCanvas.addEventListener("click", (e)=> {
   if (gTimerStopFlag === 1) {
     replayController();
@@ -704,7 +735,23 @@ chouzaiKansaCanvas.addEventListener("click", (e)=> {
     pauseController();
   }
   gReplayCtrl.dispCntInit();
-})
+});
+hukuyakuWaitCanvas.addEventListener("click", (e)=> {
+  if (gTimerStopFlag === 1) {
+    replayController();
+  } else {
+    pauseController();
+  }
+  gReplayCtrl.dispCntInit();
+});
+hukuyakuCanvas.addEventListener("click", (e)=> {
+  if (gTimerStopFlag === 1) {
+    replayController();
+  } else {
+    pauseController();
+  }
+  gReplayCtrl.dispCntInit();
+});
 
 //　表示モード切替
 gModeSelecter.addEventListener("change", (e) => {
