@@ -17,7 +17,7 @@ const ZANCHI = Symbol();
 let gHomeFlag;
 let gTime = new Date();
 let gCalendarTime = new Date();
-let gOpenStamp;
+let gOpenTime;
 let gDiffTime;
 let gStartTime;
 let gStopTime;
@@ -346,7 +346,7 @@ function dataAnalysis() {
 
   for (let patient of gPatients) {
     // 8:00を基準とした入力開始時間
-    timeISFromStart = (patient.timeIS.getTime() - gOpenStamp) / 1000 / 60;
+    timeISFromStart = (patient.timeIS.getTime() - gOpenTime) / 1000 / 60;
 
     //　入力開始から服薬指導開始までを待ち時間と定義（残置、90分以上を除く）
     if (patient.zanchiPerson.length === 0) {
@@ -580,7 +580,7 @@ function init() {
   gTime.setMinutes(0);
   gTime.setSeconds(0);
   gTime.setMilliseconds(0);
-  gOpenStamp = gTime.getTime(); // 開始時刻(8:00)のタイムスタンプ取得
+  gOpenTime = gTime.getTime(); // 開始時刻(8:00)のタイムスタンプ取得
   
   // JSONデータファイル読み込み
   // サーバーから読み込む
@@ -610,7 +610,7 @@ function dispUpdate() {
   if (gTimerStopFlag == 0) {
     // 開始時間からの経過時間を開始タイムスタンプに加算
     gDiffTime = performance.now() - gStartTime - gStopIntervalTime + (gTImeFowardBack*FORWARD_UNIT);
-    gTime.setTime(gOpenStamp + gDiffTime * gSpeedController);
+    gTime.setTime(gOpenTime + gDiffTime * gSpeedController);
     
     
     gReplayCtrl.draw();
