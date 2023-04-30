@@ -2,9 +2,10 @@
 
 // マジックナンバー設定
 const MESH = 15;
-const TIMER_INTERVAL = 100;
 const FALL_SPEED = 6;
-const FORWARD_UNIT = 30 * 1000;
+const FORWARD_UNIT = 30 * 60 * 1000;    // 30分進める
+const BACK_UNIT = 30 * 60 * 1000;       // 30分戻す
+const WATCH_SPEED = 60;                 // 60倍速
 // シンボル設定
 const NYURYOKU = Symbol();
 const PRESCRIPT_WAIT = Symbol();
@@ -18,14 +19,11 @@ let gHomeFlag;
 let gTime = new Date();
 let gCalendarTime = new Date();
 let gOpenTime;
+let gBaseTime;
 let gDiffTime;
 let gStartTime;
-let gStopTime;
-let gResumeTime;
-let gStopIntervalTime;
 let gTimerStopFlag;
 let gSpeedController;
-let gTImeFowardBack;
 let gHeight;
 let gDescriptionMode;
 let gPatients = [];
@@ -562,10 +560,7 @@ function chartDraw() {
 window.onload = function () {
   gHomeFlag = 1;
   gTimerStopFlag = 1;
-  gDiffTime = 0;
-  gStopTime = gResumeTime = gStopIntervalTime = gTImeFowardBack = 0;
-  gSpeedController = 60;  // 60倍速で表示
-
+  gSpeedController = WATCH_SPEED;  // 60倍速で表示
 };
 
 ///////////////////////////////////////////////////////
@@ -595,6 +590,8 @@ function init() {
   }
 
   gTimerStopFlag = 0;
+  gDiffTime = 0;
+  gBaseTime = gOpenTime;
   gStartTime = performance.now();
   
   dataAnalysis();
@@ -606,44 +603,39 @@ function init() {
 ///////////////////////////////////////////////////////
 // FPS　Controller
 function dispUpdate() {
+  // 経過時間の計算
+  gDiffTime = (gTimerStopFlag === 1) ? 0 : (performance.now() - gStartTime);
+  gTime.setTime(gBaseTime + gDiffTime * gSpeedController);
   
-  if (gTimerStopFlag == 0) {
-    // 開始時間からの経過時間を開始タイムスタンプに加算
-    gDiffTime = performance.now() - gStartTime - gStopIntervalTime + (gTImeFowardBack*FORWARD_UNIT);
-    gTime.setTime(gOpenTime + gDiffTime * gSpeedController);
-    
-    
-    gReplayCtrl.draw();
-    clock();
-    Animationdraw(); 
-    requestAnimationFrame(dispUpdate);
-  } else {
-    console.log("Stop");
-    // gReplayCtrl.draw();
-    // requestAnimationFrame(dispUpdate);
-    
-  }
-
-  gDescriptionMode = gModeSelecter.value;
+  // 描画更新処理
+  gReplayCtrl.draw();
+  clock();
+  Animationdraw(); 
+  requestAnimationFrame(dispUpdate);
 }
 
 ///////////////////////////////////////////////////////
 // リプレイコントローラー
 function replayController() {
   gTimerStopFlag = 0;
-  gResumeTime = performance.now(); // 再開した時間
-  gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
-  dispUpdate();
+  gStartTime = performance.now(); // 再開時の時間を開始時間に再設定
 }
 function pauseController() {
   gTimerStopFlag = 1;
-  gStopTime = performance.now(); //ストップした時間
+  gBaseTime = gTime.getTime(); //ストップ時の経過時間
+}
+function backforwardController(forwardFlag) {
+  if (forwardFlag === 1) {
+    gBaseTime = gTime.getTime() + FORWARD_UNIT; //現時刻に加算して時間を進める
+  } else {
+    gBaseTime = gTime.getTime() - BACK_UNIT; //現時刻に減算して時間を戻す
+  }
+  gStartTime = performance.now(); // 経過時間を初期化
 }
 
 ///////////////////////////////////////////////////////
 // イベントリスナー
 document.addEventListener("keydown", (e) => {
-
   if (gHomeFlag === 0) {
     // Push 'Space' key -> 描画一時停止 or 再開
     if (e.key === " ") {
@@ -656,12 +648,9 @@ document.addEventListener("keydown", (e) => {
     }
     // Push Arrow key -> 早送り、巻き戻し
     if (e.key === 'ArrowRight') {
-      gTImeFowardBack++;
-      if (gTimerStopFlag === 1) {
-        dispUpdate();
-      }
+      backforwardController(1);
     } else if (e.key === 'ArrowLeft') {
-      gTImeFowardBack--;
+      backforwardController(0);
     }
   }
 });
@@ -676,6 +665,7 @@ gPlayBtn.addEventListener("mousedown", (e) => {
 gPlayBtn.addEventListener("mouseup", (e) => {
   gPlayBtn.style.transform = "scale(1)";
 });
+
 // 再生ストップボタン処理
 gPauseBtn.addEventListener("mousedown", (e) => {
   if (gTimerStopFlag === 0) {
@@ -686,18 +676,21 @@ gPauseBtn.addEventListener("mousedown", (e) => {
 gPauseBtn.addEventListener("mouseup", (e) => {
   gPauseBtn.style.transform = "scale(1)";
 });
+
 // 早送りボタン処理
 gFastForwardBtn.addEventListener("mousedown", (e) => {
   gFastForwardBtn.style.transform = "scale(1.3)";
-  gTImeFowardBack++;
+  backforwardController(1);
+
 });
 gFastForwardBtn.addEventListener("mouseup", (e) => {
   gFastForwardBtn.style.transform = "scale(1)";
 });
+
 // 巻き戻しボタン処理
 gBackForwardBtn.addEventListener("mousedown", (e) => {
   gBackForwardBtn.style.transform = "scale(1.3)";
-  gTImeFowardBack--;
+  backforwardController(0);
 });
 gBackForwardBtn.addEventListener("mouseup", (e) => {
   gBackForwardBtn.style.transform = "scale(1)";
@@ -716,6 +709,7 @@ chouzaiKansaCanvas.addEventListener("click", (e)=> {
 //　表示モード切替
 gModeSelecter.addEventListener("change", (e) => {
   descriptonUpdate();
+  gDescriptionMode = gModeSelecter.value;
 });
 
 // ホーム画面から分析画面への遷移　
