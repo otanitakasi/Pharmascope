@@ -321,10 +321,7 @@ function Animationdraw() {
 // データ分析
 // テーブルデータ作成
 function dataAnalysis() {
-  // 受付処方箋枚数
-  gAnalysisiData.priscriptCnt = gPatients.length;
-  document.getElementById('priscript-cnt').innerHTML = `${gAnalysisiData.priscriptCnt} 枚`;
-
+  
   let waitTime;
   let waitTimeSum = 0;
   let waitTimeCnt = 0;
@@ -340,7 +337,10 @@ function dataAnalysis() {
   let timeISFromStart;
   const apoMemberTemp = [];
   const opeMemberTemp = [];
-
+  
+  // 受付処方箋枚数
+  gAnalysisiData.priscriptCnt = gPatients.length;
+  document.getElementById('priscript-cnt').innerHTML = `${gAnalysisiData.priscriptCnt} 枚`;
   // タイムゾーンデータの初期化
   gPatientsNumTimeZone = gPatientsNumTimeZone.map(function() {return 0;});
   gWaitTimeAveTimeZone = gWaitTimeAveTimeZone.map(function() {return 0;});
@@ -395,7 +395,7 @@ function dataAnalysis() {
     apoMemberTemp.push(patient.chouzaiPerson);
     apoMemberTemp.push(patient.kansaPerson);
     apoMemberTemp.push(patient.hukuyakuPerson);
-    // 出勤オペ
+    // 出勤医療事務
     opeMemberTemp.push(patient.inputPerson);
     // 残置数
     if (patient.zanchiPerson.length !== 0) {
