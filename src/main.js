@@ -67,7 +67,6 @@ const gChouzaiKansaCtx = chouzaiKansaCanvas.getContext("2d");           //調剤
 const gHukuyakuWaitCtx = hukuyakuWaitCanvas.getContext("2d");           //服薬指導待ちライン
 const gHukuyakuCtx = hukuyakuCanvas.getContext("2d");                   //服薬指導ライン
 const gZanchiCtx = zanchiCanvas.getContext("2d");                       //残置ライン
-
 // canvasの高さを設定
 const gCanvasElement = document.getElementById('nyuryoku-div');
 gHeight = gCanvasElement.clientHeight;
@@ -89,8 +88,41 @@ const gFastForwardBtn = document.getElementById('fastforward-btn');
 const gInitBtn = document.getElementById('initial-btn');
 const gCalendar = document.getElementById('calendar');
 
+
+////////////////////////////////////////////////////////
+// 画面中央の再生・停止表示コントローラークラス
+class replayControllerCenterDisp {
+  constructor(_ctx) {
+    this.ctx = _ctx;
+    this.x = 0;
+    this.y = 100;
+    this.width = 50;
+    this.height = 60;
+    this.replayImg = new Image();
+    this.replayImg.src = './img/play_center.png';
+    this.pauseImg = new Image();
+    this.pauseImg.src = './img/pause_center.png';
+    this.cntMax = 25;
+    this.dispCnt = this.cntMax;
+  }
+
+  dispCntInit() {
+    this.dispCnt = 0;
+  }
+  
+  draw() {
+    if (this.dispCnt < this.cntMax) {
+      this.img = (gTimerStopFlag === 0) ? this.replayImg : this.pauseImg;
+      this.x = this.cntMax - this.dispCnt;
+      this.ctx.drawImage(this.img, this.x, this.y, this.dispCnt*3, this.dispCnt*3);
+      this.dispCnt++;
+    }
+  }
+};
+const gReplayCtrl = new replayControllerCenterDisp(gChouzaiKansaCtx);
+
 ///////////////////////////////////////////////////////
-// 患者クラス定義
+// 患者クラス
 class Patient {
   constructor(_data) {
     this.id = _data.id;
@@ -200,7 +232,8 @@ function Animationdraw() {
 
   let cnt = 0;
   // 入力ラインの描画
-  gNyuryokuCtx.clearRect(0, 0, nyuryokuCanvas.width, nyuryokuCanvas.height)
+  gNyuryokuCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
+  gNyuryokuCtx.fillRect(0, 0, nyuryokuCanvas.width, nyuryokuCanvas.height)
   gNyuryoku =   gPatients.filter(function(patient) {
     return ((gTime.getTime() >= patient.timeIS.getTime()) && (gTime.getTime() < patient.timeIE.getTime() ))
   });
@@ -208,7 +241,8 @@ function Animationdraw() {
 
   // 処方鑑査待ちラインの描画
   cnt = 0;
-  gPrescriptWaitCtx.clearRect(0, 0, prescriptWaitCanvas.width, prescriptWaitCanvas.height)
+  gPrescriptWaitCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
+  gPrescriptWaitCtx.fillRect(0, 0, prescriptWaitCanvas.width, prescriptWaitCanvas.height)
   gPrescriptWait =   gPatients.filter(function(patient) {
     return ((gTime.getTime() >= patient.timeIE.getTime()) && (gTime.getTime() < patient.timePS.getTime() ))
   });
@@ -216,7 +250,8 @@ function Animationdraw() {
 
   // 処方鑑査ラインの描画
   cnt = 0;
-  gPrescriptCtx.clearRect(0, 0, prescriptCanvas.width, prescriptCanvas.height)
+  gPrescriptCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
+  gPrescriptCtx.fillRect(0, 0, prescriptCanvas.width, prescriptCanvas.height)
   gPrescript =   gPatients.filter(function(patient) {
     return ((gTime.getTime() >= patient.timePS.getTime()) && (gTime.getTime() < patient.timePE.getTime() ))
   });
@@ -227,7 +262,8 @@ function Animationdraw() {
 
   // 調剤監査ラインの描画
   cnt = 0;
-  gChouzaiKansaCtx.clearRect(0, 0, chouzaiKansaCanvas.width, chouzaiKansaCanvas.height)
+  gChouzaiKansaCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
+  gChouzaiKansaCtx.fillRect(0, 0, gCanvasElement.clientWidth, chouzaiKansaCanvas.height)
   gChozaiKansa =   gPatients.filter(function(patient) {
     return ((gTime.getTime() >= patient.timePE.getTime()) && (gTime.getTime() < patient.timeKE.getTime() ))
   });
@@ -242,7 +278,8 @@ function Animationdraw() {
 
   // 服薬指導待ちラインの描画
   cnt = 0;
-  gHukuyakuWaitCtx.clearRect(0, 0, hukuyakuWaitCanvas.width, hukuyakuWaitCanvas.height)
+  gHukuyakuWaitCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
+  gHukuyakuWaitCtx.fillRect(0, 0, hukuyakuWaitCanvas.width, hukuyakuWaitCanvas.height)
   gHukuyakuWait =   gPatients.filter(function(patient) {
     return ((gTime.getTime() >= patient.timeKE.getTime())
           && (gTime.getTime() < patient.timeHS.getTime())
@@ -253,7 +290,8 @@ function Animationdraw() {
 
   // 服薬指導ラインの描画
   cnt = 0;
-  gHukuyakuCtx.clearRect(0, 0, hukuyakuCanvas.width, hukuyakuCanvas.height)
+  gHukuyakuCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
+  gHukuyakuCtx.fillRect(0, 0, hukuyakuCanvas.width, hukuyakuCanvas.height)
   gHukuyaku =   gPatients.filter(function(patient) {
     return ((gTime.getTime() >= patient.timeHS.getTime()) && (gTime.getTime() <= patient.timeHE.getTime() ))
   });
@@ -264,7 +302,8 @@ function Animationdraw() {
 
   // 残置ラインの描画
   cnt = 0;
-  gZanchiCtx.clearRect(0, 0, zanchiCanvas.width, zanchiCanvas.height)
+  gZanchiCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
+  gZanchiCtx.fillRect(0, 0, zanchiCanvas.width, zanchiCanvas.height)
   gZanchi =   gPatients.filter(function(patient) {
     return ((patient.zanchiPerson.length !== 0)
           &&(gTime.getTime() >= patient.timeZS.getTime())
@@ -528,6 +567,7 @@ window.onload = function () {
   gDiffTime = 0;
   gStopTime = gResumeTime = gStopIntervalTime = gTImeFowardBack = 0;
   gSpeedController = 60;  // 60倍速で表示
+
 };
 
 ///////////////////////////////////////////////////////
@@ -575,11 +615,16 @@ function dispUpdate() {
     gDiffTime = performance.now() - gStartTime - gStopIntervalTime + (gTImeFowardBack*FORWARD_UNIT);
     gTime.setTime(gStartStamp + gDiffTime * gSpeedController);
 
+
+    gReplayCtrl.draw();
     clock();
     Animationdraw(); 
     requestAnimationFrame(dispUpdate);
   } else {
     console.log("Stop");
+    // gReplayCtrl.draw();
+    // requestAnimationFrame(dispUpdate);
+
   }
 }
 
@@ -670,6 +715,19 @@ gInitBtn.addEventListener("click", (e) => {
     init();
   }
 });
+
+chouzaiKansaCanvas.addEventListener("click", (e)=> {
+  if (gTimerStopFlag === 1) {
+    gTimerStopFlag = 0;
+    gResumeTime = performance.now(); // 再開した時間
+    gStopIntervalTime += gResumeTime - gStopTime; // 一時停止した時間をカウント
+    dispUpdate();
+  } else {
+    gTimerStopFlag = 1;
+    gStopTime = performance.now(); //ストップした時間
+  }
+  gReplayCtrl.dispCntInit();
+})
 
 /////////////////////////////////////////////////////////////////////////////////////
 //    ユーティリティ
@@ -765,3 +823,15 @@ const clock = () => {
   document.querySelector(".clock-date").innerText = today;
   document.querySelector(".clock-time").innerText = time;
 };
+
+///////////////////////////////////////////////////////
+// 画面中央での再生コントロール
+function replayControllerTest() {
+  const img = new Image();
+  img.onload = function() {
+    gChouzaiKansaCtx.drawImage(img, 5, 100, 20, 20);
+  };
+  img.src = './img/play_center.png';
+
+}
+
