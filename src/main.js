@@ -173,7 +173,8 @@ class Patient {
       this.mY = 0;
       this.stage = stage;
     }
-    const mYDist = gHeight - MESH - (y * (MESH + 5)); 
+    const mYDist = gHeight - MESH - (y * (MESH + 5));
+    if (mYDist < 0 ) return;
     this.mY = (this.mY < mYDist) ? this.mY+FALL_SPEED : mYDist;
 
     // 入力開始からの経過時間により色を設定する
@@ -711,7 +712,7 @@ gBackForwardBtn.addEventListener("mouseup", (e) => {
   gBackForwardBtn.style.transform = "scale(1)";
 });
 
-// アニメーションエリアの再生コントロール
+// アニメーションエリアの再生コントロール（5つのラインでクリック操作を有効化）
 prescriptWaitCanvas.addEventListener("click", (e)=> {
   if (gTimerStopFlag === 1) {
     replayController();
