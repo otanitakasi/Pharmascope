@@ -158,7 +158,9 @@ class Patient {
     this.timeZS = new Date(Date.parse(_data.zanchi_start));   // 残置登録開始時間
 
     this.stage = null;    //入力～残置
-    this.mY = 0;
+    this.mY = new Map([
+      [NYURYOKU,0],[PRESCRIPT_WAIT,0],[PRESCRIPT,0],[CHOUZAI_KANSA,0],[HUKUYAKU_WAIT,0],[HUKUYAKU,0]
+    ]);
     this.width = null;
     this.colorId = null;
     this.radius = 5;
@@ -168,14 +170,14 @@ class Patient {
   draw(ctx, stage , y) {
     this.width = gCanvasElement.clientWidth;    // 現在の幅を取得（ウィンドウ幅により可変）
 
-    // ステージ変更時には、上から落ちてくるアニメーションにするための設定
-    if (this.stage !== stage) {
-      this.mY = 0;
-      this.stage = stage;
-    }
+    // 高さの計算
+    // 初期値を０に設定されているため、初めて表示される際は上から落下してくるように描画 
     const mYDist = gHeight - MESH - (y * (MESH + 5));
-    if (mYDist < 0 ) return;                      // ライン上限を超える場合はそれ以上表示しない
-    this.mY = (this.mY < mYDist) ? this.mY+FALL_SPEED : mYDist;
+    if (mYDist < 0 ) return;                      // ライン上限を超える場合は描画処理は終了
+    const mYValue = this.mY.get(stage);
+    const mYSet = (mYValue < mYDist) ? mYValue+FALL_SPEED : mYDist; 
+    this.mY.set(stage, mYSet);
+
 
     // 入力開始からの経過時間により色を設定する
     const passTime = (gTime.getTime() - this.timeIS.getTime())/60000;   // 経過時間（分）
@@ -227,8 +229,8 @@ class Patient {
         (gDescriptionMode === 'TIME_DISP') ? gTimeColorPallets[this.colorId]
                                            : gPersonColorPallets[this.colorId];
 
-    roundedRect(ctx, 2, this.mY, this.width-3, MESH, this.radius);  // 矩形表示
-    textDisp(ctx, this.id, this.width/2, this.mY+MESH-2);           // 処方箋番号表示
+    roundedRect(ctx, 2, this.mY.get(stage), this.width-3, MESH, this.radius);  // 矩形表示
+    textDisp(ctx, this.id, this.width/2, this.mY.get(stage)+MESH-2);           // 処方箋番号表示
   }
 }
 
