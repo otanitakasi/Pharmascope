@@ -174,7 +174,7 @@ class Patient {
       this.stage = stage;
     }
     const mYDist = gHeight - MESH - (y * (MESH + 5));
-    if (mYDist < 0 ) return;
+    if (mYDist < 0 ) return;                      // ライン上限を超える場合はそれ以上表示しない
     this.mY = (this.mY < mYDist) ? this.mY+FALL_SPEED : mYDist;
 
     // 入力開始からの経過時間により色を設定する
