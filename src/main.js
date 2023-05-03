@@ -10,6 +10,8 @@ const WATCH_SPEED = 60;                 // 60倍速
 const NYURYOKU = Symbol();
 const PRESCRIPT_WAIT = Symbol();
 const PRESCRIPT = Symbol();
+const CHOUZAI = Symbol();
+const KANSA = Symbol();
 const CHOUZAI_KANSA = Symbol();
 const HUKUYAKU_WAIT = Symbol();
 const HUKUYAKU = Symbol();
@@ -133,6 +135,14 @@ const gReplayCtrl = new replayControllerCenterDisp();
 class Patient {
   constructor(_data) {
     this.id = _data.id;
+    this.person = new Map([
+      [NYURYOKU, _data.input_person],
+      [PRESCRIPT, _data.prescript_person],
+      [CHOUZAI, _data.chouzai_person],
+      [KANSA, _data.kansa_person],
+      [HUKUYAKU, _data.hukuyaku_person],
+      [ZANCHI, _data.zanchi_person]
+    ]);
     // 入力
     this.inputPerson = _data.input_person;                  // 入力担当者
     this.timeIS = new Date(Date.parse(_data.input_start));  // 入力開始時間
@@ -162,7 +172,7 @@ class Patient {
       [NYURYOKU,0],[PRESCRIPT_WAIT,0],[PRESCRIPT,0],[CHOUZAI_KANSA,0],[HUKUYAKU_WAIT,0],[HUKUYAKU,0]
     ]);
     this.width = null;
-    this.colorId = null;
+    this.colorId = new Array();
 
     this.radius = 5;
   }
@@ -189,55 +199,34 @@ class Patient {
       }
     }
 
-    // 入力開始からの経過時間により色を設定する
+    // カラーセレクション
+    // 待ち時間モード　or 担当者モード
+    // 待ち時間モード：入力開始からの経過時間により色を設定する
     const passTime = (gTime.getTime() - this.timeIS.getTime())/60000;   // 経過時間（分）
     if (gDescriptionMode === 'TIME_DISP') {
-      this.colorId = (passTime < 10) ? 0 : (passTime < 20) ? 1 : (passTime < 30) ? 2
-                   : (passTime < 40) ? 3 : 4;
+      this.colorId[0] = (passTime < 10) ? 0 : (passTime < 20) ? 1 : (passTime < 30) ? 2
+                      : (passTime < 40) ? 3 : 4;
     } else {
-      switch(stage) {
-        case NYURYOKU: 
-          for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
-            if (gAnalysisiData.AllMember[i] === this.inputPerson) {
-              this.colorId = i;
-            }
+      for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
+        if (stage === CHOUZAI_KANSA) {
+          if (gAnalysisiData.AllMember[i] === this.person.get(CHOUZAI)) {
+            this.colorId[0] = i;
           }
-          break;
-        case PRESCRIPT_WAIT: this.colorId = 100;
-        break;
-        case PRESCRIPT:
-          for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
-            if (gAnalysisiData.AllMember[i] === this.prescriptPerson) {
-              this.colorId = i;
-            }
+          if (gAnalysisiData.AllMember[i] === this.person.get(KANSA)) {
+            this.colorId[1] = i;
           }
-          break;
-        case CHOUZAI_KANSA :
-          for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
-            if (gAnalysisiData.AllMember[i] === this.chouzaiPerson) {
-              this.colorId = i;
-            }
+        } else {
+          if (gAnalysisiData.AllMember[i] === this.person.get(stage)) {
+            this.colorId[0] = i;
           }
-          break;
-        case HUKUYAKU_WAIT:  this.colorId = 100;
-          break;
-        case HUKUYAKU: 
-          for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
-            if (gAnalysisiData.AllMember[i] === this.hukuyakuPerson) {
-              this.colorId = i;
-            }
-          }
-          break;
-        case ZANCHI:  this.colorId = 200; 
-          break;
-        default: this.colorId = 100; break;
+        }
       }
     }
     
-    ctx.fillStyle = (this.colorId === 100) ? 'rgba(255, 255, 255, 0.5)' :
-                    (this.colorId === 200) ? '#A7A7A7' :
-        (gDescriptionMode === 'TIME_DISP') ? gTimeColorPallets[this.colorId]
-                                           : gPersonColorPallets[this.colorId];
+    ctx.fillStyle = (gDescriptionMode === 'TIME_DISP') ? gTimeColorPallets[this.colorId[0]] :
+                    (stage === PRESCRIPT_WAIT) ? 'rgba(255, 255, 255, 0.5)' :
+                    (stage === HUKUYAKU_WAIT)  ? 'rgba(255, 255, 255, 0.5)' :
+                    (stage === ZANCHI)         ? '#A7A7A7' : gPersonColorPallets[this.colorId[0]];
 
     roundedRect(ctx, 2, this.mY.get(stage), this.width-3, MESH, this.radius);  // 矩形表示
     textDisp(ctx, this.id, this.width/2, this.mY.get(stage)+MESH-2);           // 処方箋番号表示
