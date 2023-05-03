@@ -163,6 +163,7 @@ class Patient {
     ]);
     this.width = null;
     this.colorId = null;
+
     this.radius = 5;
   }
 
@@ -176,8 +177,17 @@ class Patient {
     if (mYDist < 0 ) return;                      // ライン上限を超える場合は描画処理は終了
     const mYValue = this.mY.get(stage);
     const mYSet = (mYValue < mYDist) ? mYValue+FALL_SPEED : mYDist; 
-    this.mY.set(stage, mYSet);
-
+    for (let key of this.mY.keys()) {
+      if (key === stage) {
+        this.mY.set(key, mYSet);
+      } else {
+        // 先服薬指導では服薬指導と他ラインが同時に表示される場合があるため、
+        // 服薬指導の時間内はY座標の初期化は行わない
+        if ((gTime.getTime() < this.timeHS.getTime()) || (gTime.getTime() > this.timeHE.getTime())) {
+          this.mY.set(key, 0);
+        }
+      }
+    }
 
     // 入力開始からの経過時間により色を設定する
     const passTime = (gTime.getTime() - this.timeIS.getTime())/60000;   // 経過時間（分）
@@ -303,7 +313,7 @@ function Animationdraw() {
   gHukuyakuCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
   gHukuyakuCtx.fillRect(0, 0, hukuyakuCanvas.width, hukuyakuCanvas.height)
   gHukuyaku =   gPatients.filter(function(patient) {
-    return ((gTime.getTime() >= patient.timeHS.getTime()) && (gTime.getTime() <= patient.timeHE.getTime() ))
+    return ((gTime.getTime() >= patient.timeHS.getTime()) && (gTime.getTime() <= patient.timeHE.getTime()))
   });
   for (let block of gHukuyaku) {
     block.draw(gHukuyakuCtx, HUKUYAKU, cnt++);
