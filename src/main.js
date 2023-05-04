@@ -672,12 +672,15 @@ document.addEventListener("keydown", (e) => {
       } else {
         replayController();
       }
+      e.preventDefault();
     }
     // Push Arrow key -> 早送り、巻き戻し
     if (e.key === 'ArrowRight') {
       backforwardController(1);
+      e.preventDefault();
     } else if (e.key === 'ArrowLeft') {
       backforwardController(0);
+      e.preventDefault();
     }
 
     gReplayCtrl.dispCntInit();
