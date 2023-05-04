@@ -59,8 +59,17 @@ const chouzaiKansaCanvas = document.getElementById("chouzaiKansa");     //調剤
 const hukuyakuWaitCanvas = document.getElementById("hukuyakuWait");     //服薬指導待ちライン
 const hukuyakuCanvas = document.getElementById("hukuyaku");             //服薬指導ライン
 const zanchiCanvas = document.getElementById("zanchi");                 //残置ライン
+const gCanvas = new Map([
+  [NYURYOKU, document.getElementById("nyuryoku")],
+  [PRESCRIPT_WAIT, document.getElementById("prescriptWait")],
+  [PRESCRIPT, document.getElementById("prescript")],
+  [CHOUZAI_KANSA, document.getElementById("chouzaiKansa")],
+  [HUKUYAKU_WAIT, document.getElementById("hukuyakuWait")],
+  [HUKUYAKU, document.getElementById("hukuyaku")],
+  [ZANCHI, document.getElementById("zanchi")],
+]);
 // コンテキストの取得
-const gNyuryokuCtx = nyuryokuCanvas.getContext("2d");                   //入力ライン
+const gNyuryokuCtx = gCanvas.get(NYURYOKU).getContext("2d");            //入力ライン
 const gPrescriptWaitCtx = prescriptWaitCanvas.getContext("2d");         //処方鑑査待ちライン
 const gPrescriptCtx = prescriptCanvas.getContext("2d");                 //処方鑑査ライン
 const gChouzaiKansaCtx = chouzaiKansaCanvas.getContext("2d");           //調剤鑑査ライン
@@ -178,7 +187,7 @@ class Patient {
 
   // 矩形描画処理
   draw(ctx, stage , y) {
-    this.width = gCanvasElement.clientWidth;    // 現在の幅を取得（ウィンドウ幅により可変）
+    this.width = gCanvasElement.clientWidth;    // 現在の幅を取得(ウィンドウ幅により可変)
 
     // 高さの計算
     // 初期値を０に設定されているため、初めて表示される際は上から落下してくるように描画 
@@ -272,7 +281,7 @@ function Animationdraw() {
   // 処方鑑査ラインの描画
   cnt = 0;
   gPrescriptCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gPrescriptCtx.fillRect(0, 0, prescriptCanvas.width, prescriptCanvas.height)
+  gPrescriptCtx.fillRect(0, 0, prescriptCanvas.width, gHeight)
   gPrescript =   gPatients.filter(function(patient) {
     return ((gTime.getTime() >= patient.timePS.getTime()) && (gTime.getTime() < patient.timePE.getTime() ))
   });
@@ -560,7 +569,7 @@ function chartDraw() {
               }
             },
           }, 
-          { id: "y-axis-2",                 // Y軸右)
+          { id: "y-axis-2",                 // Y軸(右)
             type: "linear",
             position: "right",
             ticks: {                        // 目盛設定
@@ -729,46 +738,16 @@ gBackForwardBtn.addEventListener("mouseup", (e) => {
 });
 
 // アニメーションエリアの再生コントロール（5つのラインでクリック操作を有効化）
-prescriptWaitCanvas.addEventListener("click", (e)=> {
-  if (gTimerStopFlag === 1) {
-    replayController();
-  } else {
-    pauseController();
-  }
-  gReplayCtrl.dispCntInit();
-});
-prescriptCanvas.addEventListener("click", (e)=> {
-  if (gTimerStopFlag === 1) {
-    replayController();
-  } else {
-    pauseController();
-  }
-  gReplayCtrl.dispCntInit();
-});
-chouzaiKansaCanvas.addEventListener("click", (e)=> {
-  if (gTimerStopFlag === 1) {
-    replayController();
-  } else {
-    pauseController();
-  }
-  gReplayCtrl.dispCntInit();
-});
-hukuyakuWaitCanvas.addEventListener("click", (e)=> {
-  if (gTimerStopFlag === 1) {
-    replayController();
-  } else {
-    pauseController();
-  }
-  gReplayCtrl.dispCntInit();
-});
-hukuyakuCanvas.addEventListener("click", (e)=> {
-  if (gTimerStopFlag === 1) {
-    replayController();
-  } else {
-    pauseController();
-  }
-  gReplayCtrl.dispCntInit();
-});
+for (let line  of gCanvas.keys()) {
+  gCanvas.get(line).addEventListener("click", (e)=> {
+    if (gTimerStopFlag === 1) {
+      replayController();
+    } else {
+      pauseController();
+    }
+    gReplayCtrl.dispCntInit();
+  });
+}
 
 //　表示モード切替
 gModeSelecter.addEventListener("change", (e) => {
