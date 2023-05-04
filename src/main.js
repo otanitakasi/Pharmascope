@@ -76,16 +76,21 @@ const gChouzaiKansaCtx = chouzaiKansaCanvas.getContext("2d");           //調剤
 const gHukuyakuWaitCtx = hukuyakuWaitCanvas.getContext("2d");           //服薬指導待ちライン
 const gHukuyakuCtx = hukuyakuCanvas.getContext("2d");                   //服薬指導ライン
 const gZanchiCtx = zanchiCanvas.getContext("2d");                       //残置ライン
+const gCtx = new Map([
+  [NYURYOKU, gCanvas.get(NYURYOKU).getContext("2d")],
+  [PRESCRIPT_WAIT, gCanvas.get(PRESCRIPT_WAIT).getContext("2d")],
+  [PRESCRIPT, gCanvas.get(PRESCRIPT).getContext("2d")],
+  [CHOUZAI_KANSA, gCanvas.get(CHOUZAI_KANSA).getContext("2d")],
+  [HUKUYAKU_WAIT, gCanvas.get(HUKUYAKU_WAIT).getContext("2d")],
+  [HUKUYAKU, gCanvas.get(HUKUYAKU).getContext("2d")],
+  [ZANCHI, gCanvas.get(ZANCHI).getContext("2d")]
+]);
 // canvasの高さを設定
 const gCanvasElement = document.getElementById('nyuryoku-div');
 gHeight = gCanvasElement.clientHeight;
-nyuryokuCanvas.height = gHeight;
-prescriptWaitCanvas.height = gHeight;
-prescriptCanvas.height = gHeight;
-chouzaiKansaCanvas.height = gHeight;
-hukuyakuWaitCanvas.height = gHeight;
-hukuyakuCanvas.height = gHeight;
-zanchiCanvas.height = gHeight;
+for (let line of gCanvas.keys()) {
+  gCanvas.get(line).height = gHeight;
+}
 
 ////////////////////////////////////////////////////////
 // その他要素取得
@@ -152,6 +157,20 @@ class Patient {
       [HUKUYAKU, _data.hukuyaku_person],
       [ZANCHI, _data.zanchi_person]
     ]);
+    this.time = new Map([
+      [NYURYOKU, [new Date(Date.parse(_data.input_start)), new Date(Date.parse(_data.input_end))]],
+      [PRESCRIPT_WAIT, [new Date(Date.parse(_data.input_end)), new Date(Date.parse(_data.prescript_start))]],
+      [PRESCRIPT, [new Date(Date.parse(_data.prescript_start)), new Date(Date.parse(_data.prescript_end))]],
+      [CHOUZAI, [new Date(Date.parse(_data.chouzai_start)), new Date(Date.parse(_data.chouzai_end))]],
+      [KANSA, [new Date(Date.parse(_data.kansa_start)), new Date(Date.parse(_data.kansa_end))]],
+      [CHOUZAI_KANSA, [new Date(Date.parse(_data.prescript_end)), new Date(Date.parse(_data.kansa_end))]],
+      [HUKUYAKU_WAIT, [new Date(Date.parse(_data.kansa_end)), 
+        (this.person.get(ZANCHI).length===0)  ? new Date(Date.parse(_data.hukuyaku_start))
+                                              : new Date(Date.parse(_data.zanchi_start))]],
+      [HUKUYAKU, [new Date(Date.parse(_data.hukuyaku_start)), new Date(Date.parse(_data.hukuyaku_end))]],
+      [ZANCHI, [new Date(Date.parse(_data.zanchi_start)), new Date(Date.parse(_data.hukuyaku_start))]]
+    ]);
+
     // 入力
     this.inputPerson = _data.input_person;                  // 入力担当者
     this.timeIS = new Date(Date.parse(_data.input_start));  // 入力開始時間
@@ -259,88 +278,101 @@ class Patient {
 // 描画処理
 function Animationdraw() {
   const apoNowTemp = [];
+  let select = [];
 
-  let cnt = 0;
-  // 入力ラインの描画
-  gNyuryokuCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gNyuryokuCtx.fillRect(0, 0, nyuryokuCanvas.width, nyuryokuCanvas.height)
-  gNyuryoku =   gPatients.filter(function(patient) {
-    return ((gTime.getTime() >= patient.timeIS.getTime()) && (gTime.getTime() < patient.timeIE.getTime() ))
-  });
-  for (let block of gNyuryoku)  block.draw(gNyuryokuCtx, NYURYOKU, cnt++);
+  for (let line of gCtx.keys()) {
+    gCtx.get(line).fillStyle = 'rgba(21, 21, 30, 0.3)';
+    gCtx.get(line).fillRect(0, 0, gCanvas.get(line).width, gHeight);
 
-  // 処方鑑査待ちラインの描画
-  cnt = 0;
-  gPrescriptWaitCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gPrescriptWaitCtx.fillRect(0, 0, prescriptWaitCanvas.width, prescriptWaitCanvas.height)
-  gPrescriptWait =   gPatients.filter(function(patient) {
-    return ((gTime.getTime() >= patient.timeIE.getTime()) && (gTime.getTime() < patient.timePS.getTime() ))
-  });
-  for (let block of gPrescriptWait)  block.draw(gPrescriptWaitCtx, PRESCRIPT_WAIT, cnt++);
-
-  // 処方鑑査ラインの描画
-  cnt = 0;
-  gPrescriptCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gPrescriptCtx.fillRect(0, 0, prescriptCanvas.width, gHeight)
-  gPrescript =   gPatients.filter(function(patient) {
-    return ((gTime.getTime() >= patient.timePS.getTime()) && (gTime.getTime() < patient.timePE.getTime() ))
-  });
-  for (let block of gPrescript) {
-    block.draw(gPrescriptCtx, PRESCRIPT, cnt++);
-    apoNowTemp.push(block.prescriptPerson);
-  }
-
-  // 調剤監査ラインの描画
-  cnt = 0;
-  gChouzaiKansaCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gChouzaiKansaCtx.fillRect(0, 0, gCanvasElement.clientWidth, chouzaiKansaCanvas.height)
-  gChozaiKansa =   gPatients.filter(function(patient) {
-    return ((gTime.getTime() >= patient.timePE.getTime()) && (gTime.getTime() < patient.timeKE.getTime() ))
-  });
-  for (let block of gChozaiKansa)  {
-    block.draw(gChouzaiKansaCtx, CHOUZAI_KANSA, cnt++);
-    let waitTime = (block.timeHS.getTime() - block.timeIS.getTime()) / 1000 / 60;
-    if (waitTime < 90) {
-      apoNowTemp.push(block.chouzaiPerson);
-      apoNowTemp.push(block.kansaPerson);
+      // 入力ラインの描画
+    select =   gPatients.filter(function(patient) {
+      return ((gTime.getTime() >= patient.time.get(line)[0].getTime()) &&
+              (gTime.getTime() < patient.time.get(line)[1].getTime() ))
+    });
+    let cnt = 0;
+    for (let block of select) {
+      block.draw(gCtx.get(line), line, cnt++);
+      if (line === CHOUZAI_KANSA) {
+        let waitTime = (block.time.get(HUKUYAKU)[0] - block.time.get(NYURYOKU)[0]) / 1000 / 60;
+        if (waitTime < 90) {
+          apoNowTemp.push(block.chouzaiPerson);
+          apoNowTemp.push(block.kansaPerson);
+        }
+      } else if ((line===PRESCRIPT)||(line===HUKUYAKU)) {
+        apoNowTemp.push(block.person.get(line));
+      }
     }
   }
 
+  let cnt = 0;
+  // 入力ラインの描画
+  // gNyuryoku =   gPatients.filter(function(patient) {
+  //   return ((gTime.getTime() >= patient.time.get(NYURYOKU)[0].getTime()) &&
+  //           (gTime.getTime() < patient.time.get(NYURYOKU)[1].getTime() ))
+  // });
+  // for (let block of gNyuryoku)  block.draw(gNyuryokuCtx, NYURYOKU, cnt++);
+
+  // 処方鑑査待ちラインの描画
+  // cnt = 0;
+  // gPrescriptWait =   gPatients.filter(function(patient) {
+  //   return ((gTime.getTime() >= patient.time.get(PRESCRIPT_WAIT)[0].getTime()) &&
+  //           (gTime.getTime() < patient.time.get(PRESCRIPT_WAIT)[1].getTime() ))
+  // });
+  // for (let block of gPrescriptWait)  block.draw(gPrescriptWaitCtx, PRESCRIPT_WAIT, cnt++);
+
+  // 処方鑑査ラインの描画
+  // cnt = 0;
+  // gPrescript =   gPatients.filter(function(patient) {
+  //   return ((gTime.getTime() >= patient.timePS.getTime()) && (gTime.getTime() < patient.timePE.getTime() ))
+  // });
+  // for (let block of gPrescript) {
+  //   block.draw(gPrescriptCtx, PRESCRIPT, cnt++);
+  //   apoNowTemp.push(block.prescriptPerson);
+  // }
+
+  // 調剤監査ラインの描画
+  // cnt = 0;
+  // gChozaiKansa =   gPatients.filter(function(patient) {
+  //   return ((gTime.getTime() >= patient.timePE.getTime()) && (gTime.getTime() < patient.timeKE.getTime() ))
+  // });
+  // for (let block of gChozaiKansa)  {
+  //   block.draw(gChouzaiKansaCtx, CHOUZAI_KANSA, cnt++);
+  //   let waitTime = (block.timeHS.getTime() - block.timeIS.getTime()) / 1000 / 60;
+  //   if (waitTime < 90) {
+  //     apoNowTemp.push(block.chouzaiPerson);
+  //     apoNowTemp.push(block.kansaPerson);
+  //   }
+  // }
+
   // 服薬指導待ちラインの描画
-  cnt = 0;
-  gHukuyakuWaitCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gHukuyakuWaitCtx.fillRect(0, 0, hukuyakuWaitCanvas.width, hukuyakuWaitCanvas.height)
-  gHukuyakuWait =   gPatients.filter(function(patient) {
-    return ((gTime.getTime() >= patient.timeKE.getTime())
-          && (gTime.getTime() < patient.timeHS.getTime())
-          && ((patient.zanchiPerson.length === 0)||(gTime.getTime() < patient.timeZS.getTime()))
-          )
-  });
-  for (let block of gHukuyakuWait) block.draw(gHukuyakuWaitCtx, HUKUYAKU_WAIT, cnt++);
+  // cnt = 0;
+  // gHukuyakuWait =   gPatients.filter(function(patient) {
+  //   return ((gTime.getTime() >= patient.timeKE.getTime())
+  //         && (gTime.getTime() < patient.timeHS.getTime())
+  //         && ((patient.zanchiPerson.length === 0)||(gTime.getTime() < patient.timeZS.getTime()))
+  //         )
+  // });
+  // for (let block of gHukuyakuWait) block.draw(gHukuyakuWaitCtx, HUKUYAKU_WAIT, cnt++);
 
   // 服薬指導ラインの描画
-  cnt = 0;
-  gHukuyakuCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gHukuyakuCtx.fillRect(0, 0, hukuyakuCanvas.width, hukuyakuCanvas.height)
-  gHukuyaku =   gPatients.filter(function(patient) {
-    return ((gTime.getTime() >= patient.timeHS.getTime()) && (gTime.getTime() <= patient.timeHE.getTime()))
-  });
-  for (let block of gHukuyaku) {
-    block.draw(gHukuyakuCtx, HUKUYAKU, cnt++);
-    apoNowTemp.push(block.hukuyakuPerson);
-  }
+  // cnt = 0;
+  // gHukuyaku =   gPatients.filter(function(patient) {
+  //   return ((gTime.getTime() >= patient.timeHS.getTime()) && (gTime.getTime() <= patient.timeHE.getTime()))
+  // });
+  // for (let block of gHukuyaku) {
+  //   block.draw(gHukuyakuCtx, HUKUYAKU, cnt++);
+  //   apoNowTemp.push(block.hukuyakuPerson);
+  // }
 
   // 残置ラインの描画
-  cnt = 0;
-  gZanchiCtx.fillStyle = 'rgba(21, 21, 30, 0.3)';
-  gZanchiCtx.fillRect(0, 0, zanchiCanvas.width, zanchiCanvas.height)
-  gZanchi =   gPatients.filter(function(patient) {
-    return ((patient.zanchiPerson.length !== 0)
-          &&(gTime.getTime() >= patient.timeZS.getTime())
-          &&(gTime.getTime() < patient.timeHS.getTime())
-          )
-  });
-  for (let block of gZanchi) block.draw(gZanchiCtx, ZANCHI, cnt++);
+  // cnt = 0;
+  // gZanchi =   gPatients.filter(function(patient) {
+  //   return ((patient.zanchiPerson.length !== 0)
+  //         &&(gTime.getTime() >= patient.timeZS.getTime())
+  //         &&(gTime.getTime() < patient.timeHS.getTime())
+  //         )
+  // });
+  // for (let block of gZanchi) block.draw(gZanchiCtx, ZANCHI, cnt++);
 
   //　稼働薬剤師数の計算
   const apoMemberNow = Array.from(new Set(apoNowTemp))  // 配列内の重複を削除
@@ -380,7 +412,7 @@ function dataAnalysis() {
     timeISFromStart = (patient.timeIS.getTime() - gOpenTime) / 1000 / 60;
 
     //　入力開始から服薬指導開始までを待ち時間と定義（残置、90分以上を除く）
-    if (patient.zanchiPerson.length === 0) {
+    if (patient.person.get(ZANCHI).length === 0) {
       waitTime = (patient.timeHS.getTime() - patient.timeIS.getTime()) / 1000 / 60;
       chouzaiKansaTime = (patient.timeKE.getTime() - patient.timeCS.getTime()) / 1000 / 60;
       if (waitTime < 90) {
@@ -421,14 +453,14 @@ function dataAnalysis() {
     hukuyakuTime = (patient.timeHE.getTime() - patient.timeHS.getTime()) / 1000 / 60;
     hukuyakuTimeSum += hukuyakuTime;
     // 出勤薬剤師
-    apoMemberTemp.push(patient.prescriptPerson);
-    apoMemberTemp.push(patient.chouzaiPerson);
-    apoMemberTemp.push(patient.kansaPerson);
-    apoMemberTemp.push(patient.hukuyakuPerson);
+    apoMemberTemp.push(patient.person.get(PRESCRIPT));
+    apoMemberTemp.push(patient.person.get(CHOUZAI));
+    apoMemberTemp.push(patient.person.get(KANSA));
+    apoMemberTemp.push(patient.person.get(HUKUYAKU));
     // 出勤医療事務
-    opeMemberTemp.push(patient.inputPerson);
+    opeMemberTemp.push(patient.person.get(NYURYOKU));
     // 残置数
-    if (patient.zanchiPerson.length !== 0) {
+    if (patient.person.get(ZANCHI).length !== 0) {
       zanchiCnt++;
     }
   }
