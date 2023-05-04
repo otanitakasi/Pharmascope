@@ -88,7 +88,7 @@ class replayControllerCenterDisp {
   constructor() {
     this.ctx;
     this.x = 0;
-    this.y = 100;
+    this.y = gHeight/3;
     this.replayImg = new Image();
     this.replayImg.src = './img/play_center.png';
     this.pauseImg = new Image();
@@ -97,7 +97,7 @@ class replayControllerCenterDisp {
     this.forwardImg.src = './img/forward_center.png';
     this.backwardImg = new Image();
     this.backwardImg.src = './img/backward_center.png';
-    this.cntMax = 30;
+    this.cntMax = 40;
     this.dispCnt = this.cntMax;
     this.flag = 0;
   }
@@ -115,7 +115,7 @@ class replayControllerCenterDisp {
                  (this.flag === 1) ? gCtx.get(CHOUZAI_KANSA) :
                  (this.flag === 2) ? gCtx.get(HUKUYAKU) : gCtx.get(PRESCRIPT_WAIT);
       this.x = this.cntMax - this.dispCnt;
-      this.y = 100 + this.cntMax - this.dispCnt;
+      this.y = gHeight/3 + this.cntMax - this.dispCnt;
       this.ctx.drawImage(this.img, this.x, this.y, this.dispCnt*2, this.dispCnt*2);
       this.dispCnt++;
     }
@@ -437,7 +437,6 @@ function chartDraw() {
           // data: [12, 19, 3, 5, 2, 3, 90, 14, 23, 30, 18, 40],
           data: gWaitTimeAveTimeZone,
           borderColor: "rgb(75, 192, 192)",
-          // backgroundColor: "rgba(75, 192, 192, 0.5)",
           yAxisID: "y-axis-1"
         },
         {
