@@ -207,9 +207,9 @@ class Patient {
       this.colorId[0] = (passTime < 10) ? 0 : (passTime < 20) ? 1 : (passTime < 30) ? 2
                       : (passTime < 40) ? 3 : 4;
       ctx.fillStyle = gTimeColorPallets[this.colorId[0]];
-      roundedRect(ctx, this.width/30, this.mY.get(stage), this.width*3/8, MESH, 5);
-      roundedRect(ctx, this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH, 5);
-      textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
+      ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
+      ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
+      textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
     } else {
       for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
         if (stage === CHOUZAI_KANSA) {
@@ -227,18 +227,19 @@ class Patient {
       }
       if (stage === CHOUZAI_KANSA) {
         ctx.fillStyle = gPersonColorPallets[this.colorId[0]];
-        roundedRect(ctx, this.width/30, this.mY.get(stage), this.width*3/8, MESH, 5);
+        ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
         ctx.fillStyle = gPersonColorPallets[this.colorId[1]];
-        roundedRect(ctx, this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH, 5);
-        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
+        ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
+        textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
+      } else if ((stage===PRESCRIPT_WAIT)||(stage===HUKUYAKU_WAIT)||(stage===ZANCHI)) {
+        ctx.strokeStyle = "#daf6ff";
+        ctx.strokeRect(this.width/30, this.mY.get(stage), this.width-this.width/10, MESH);
+        textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
       } else {
-        ctx.fillStyle = (stage === PRESCRIPT_WAIT) ? 'rgba(21, 21, 30, 0.3)' :
-                        (stage === HUKUYAKU_WAIT)  ? 'rgba(21, 21, 30, 0.3)' :
-                        (stage === ZANCHI)         ? 'rgba(21, 21, 30, 0.3)'
-                                                   : gPersonColorPallets[this.colorId[0]];
-        roundedRect(ctx, this.width/30, this.mY.get(stage), this.width*3/8, MESH, 5);
-        roundedRect(ctx, this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH, 5);
-        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
+        ctx.fillStyle = gPersonColorPallets[this.colorId[0]];
+        ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
+        ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
+        textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
       }
     }
   }
@@ -802,9 +803,8 @@ function roundedRect(ctx, x, y, width, height, radius) {
 // テキスト描画
 // str: 文字列,  offsetX:X座標,  offsetY:Y座標
 function textDisp(ctx, str, offsetX, offsetY) {
-  ctx.font = '17px "Noto Sans JP"';
+  ctx.font = '15px "Noto Sans JP"';
   ctx.fillStyle = "#daf6ff";
-  // ctx.fillStyle = '#15151e';
   ctx.fillText(str, offsetX, offsetY);
 }
 
@@ -879,15 +879,4 @@ const clock = () => {
   document.querySelector(".clock-date").innerText = today;
   document.querySelector(".clock-time").innerText = time;
 };
-
-///////////////////////////////////////////////////////
-// 画面中央での再生コントロール
-function replayControllerTest() {
-  const img = new Image();
-  img.onload = function() {
-    gChouzaiKansaCtx.drawImage(img, 5, 100, 20, 20);
-  };
-  img.src = './img/play_center.png';
-
-}
 
