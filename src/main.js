@@ -602,17 +602,18 @@ document.addEventListener("keydown", (e) => {
       replayController();
     }
     e.preventDefault();
+    gReplayCtrl.dispCntInit();
   }
   // Push Arrow key -> 早送り、巻き戻し
   if (e.key === "ArrowRight") {
     backforwardController(1);
     e.preventDefault();
+    gReplayCtrl.dispCntInit();
   } else if (e.key === "ArrowLeft") {
     backforwardController(0);
     e.preventDefault();
+    gReplayCtrl.dispCntInit();
   }
-
-  gReplayCtrl.dispCntInit();
 });
 
 // 再生スタートボタン処理

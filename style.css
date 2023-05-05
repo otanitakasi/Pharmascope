@@ -9,12 +9,11 @@
   align-items: center;
   background-color: #15151e;
   position: absolute;
-  z-index: 2;
 }
 
 #main-display {
   position: absolute;
-  z-index: 1;
+
 }
 
 /* 時計を囲うコンテナー */
