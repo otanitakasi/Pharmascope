@@ -12,19 +12,19 @@
 
     <title>Pharmascope</title>
   </head>
-  <body style="background-color: #15151e">
+  <body>
     <!-- ナビゲーションバーの表示 -->
     <nav class="navbar navbar-expand-md navbar-light bg-light p-0 m-0">
       <div class="container-fluid">
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="collaps e navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
             </li>
           </ul>
-          <ul class="navbar-nav me-4 mb-2 mb-lg-0">
-            <li class="nav-item dropdown d-flex">
+          <ul class="navbar-nav mb-lg-0">
+            <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Mode
               </a>
@@ -37,18 +37,16 @@
         </div>
       </div>
     </nav>
-    <!-- 日時選択画面表示 -->
-    <div class="container-fluid pt-5 ps-5" id="setting-display">
     <!-- 分析画面表示 -->
-    <div id="main-display" class="container-fluid m-0 p-0">
+    <div id="main-display" class="container-fluid p-0">
 
       <!-- 表示領域：上段 (再生コントローラー、時計) -->
-      <div class="row upper-area">
-        <div class="col-3 upper-left">
-          <img id="backforward-btn" src="./img/backforward.png">
-          <img id="play-btn" src="./img/play.png">
-          <img id="pause-btn" src="./img/pause.png">
-          <img id="fastforward-btn" src="./img/fastforward.png">
+      <div class="row pt-2">
+        <div class="col-3  d-flex align-items-center justify-content-center">
+          <img class="p-1" id="backforward-btn" src="./img/backforward.png">
+          <img class="p-1" id="play-btn" src="./img/play.png">
+          <img class="p-1" id="pause-btn" src="./img/pause.png">
+          <img class="p-1" id="fastforward-btn" src="./img/fastforward.png">
         </div>
         <div class="col-7">
           <!-- Clock Area -->
@@ -68,10 +66,10 @@
       </div>
 
       <!-- 表示領域：中段 (分析データ、アニメーション、説明表示)-->
-      <div class="row main-container">
+      <div class="row main-container ps-3">
         <!-- Data Analysis Araa -->
-        <div class="col-3 table-col">
-          <table class="table table-dark table-hover data-analysis">
+        <div class="col-3 table-col ps-1">
+          <table class="table table-sm table-dark table-hover data-analysis">
             <thead>
             </thead>
             <tbody>
@@ -137,9 +135,9 @@
           <canvas id="zanchi"></canvas>
         </div>
         <!-- Discription Area -->
-        <div class="col-2 align-self-center ">
-          <ul id="description-list">
-          </ul>
+        <div class="col-2">
+            <ul id="description-list">
+            </ul>
         </div>
       </div>
 
@@ -158,8 +156,8 @@
       </div>
 
       <!-- 表示領域：下段 (枚数、待ち時間チャート) -->
-      <div class="chart-area">
-        <canvas id="myChart" width="100%" height="20"></canvas>
+      <div class="chart-area mt-3">
+        <canvas id="myChart" width="100%" height="20%"></canvas>
       </div>
     </div>
     
