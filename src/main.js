@@ -17,7 +17,6 @@ const HUKUYAKU_WAIT = Symbol();
 const HUKUYAKU = Symbol();
 const ZANCHI = Symbol();
 // グローバル変数
-let gHomeFlag;
 let gTime = new Date();
 let gCalendarTime = new Date();
 let gOpenTime;
@@ -512,9 +511,10 @@ function chartDraw() {
 ///////////////////////////////////////////////////////
 //　ページ読み込み時の処理
 window.onload = function () {
-  gHomeFlag = 1;
   gTimerStopFlag = 1;
   gSpeedController = WATCH_SPEED;  // 60倍速で表示
+
+  init();
 };
 
 ///////////////////////////////////////////////////////
@@ -594,25 +594,24 @@ function backforwardController(forwardFlag) {
 ///////////////////////////////////////////////////////
 // イベントリスナー
 document.addEventListener("keydown", (e) => {
-  if (gHomeFlag === 0) {
-    // Push 'Space' key -> 描画一時停止 or 再開
-    if (e.key === " ") {
-      if (gTimerStopFlag === 0) {
-        pauseController();
-      } else {
-        replayController();
-      }
-      e.preventDefault();
+  // Push 'Space' key -> 描画一時停止 or 再開
+  if (e.key === " ") {
+    if (gTimerStopFlag === 0) {
+      pauseController();
+    } else {
+      replayController();
     }
-    // Push Arrow key -> 早送り、巻き戻し
-    if (e.key === 'ArrowRight') {
-      backforwardController(1);
-      e.preventDefault();
-    } else if (e.key === 'ArrowLeft') {
-      backforwardController(0);
-      e.preventDefault();
-    }
-
+    e.preventDefault();
+    gReplayCtrl.dispCntInit();
+  }
+  // Push Arrow key -> 早送り、巻き戻し
+  if (e.key === "ArrowRight") {
+    backforwardController(1);
+    e.preventDefault();
+    gReplayCtrl.dispCntInit();
+  } else if (e.key === "ArrowLeft") {
+    backforwardController(0);
+    e.preventDefault();
     gReplayCtrl.dispCntInit();
   }
 });
@@ -676,18 +675,6 @@ gModeSelecter.addEventListener("change", (e) => {
   gDescriptionMode = gModeSelecter.value;
 });
 
-// ホーム画面から分析画面への遷移　
-gInitBtn.addEventListener("click", (e) => {
-  if (gCalendar.valueAsDate === null) {
-    alert("日時を選択してください");
-  } else {
-    document.getElementById("main-display").style.zIndex = 10;
-    document.getElementById("setting-display").style.display = 'none';
-    gCalendarTime = gCalendar.valueAsDate;
-    gHomeFlag = 0;
-    init();
-  }
-});
 
 /////////////////////////////////////////////////////////////////////////////////////
 //    ユーティリティ
