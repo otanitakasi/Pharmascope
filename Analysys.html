@@ -1,0 +1,175 @@
+<html lang="ja">
+  <!DOCTYPE html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css" />
+
+    <title>Pharmascope</title>
+  </head>
+  <body style="background-color: #15151e">
+    <!-- ナビゲーションバーの表示 -->
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+      <div class="container-fluid">
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav me-5 mb-2 mb-lg-0">
+            <li class="nav-item dropdown d-flex">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Mode
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">待ち時間表示</a></li>
+                <li><a class="dropdown-item" href="#">担当者表示</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <!-- 日時選択画面表示 -->
+    <div class="container-fluid pt-5 ps-5" id="setting-display">
+    <!-- 分析画面表示 -->
+    <div id="main-display" class="container-fluid">
+
+      <!-- 表示領域：上段 (再生コントローラー、時計) -->
+      <div class="row upper-area">
+        <div class="col-3 upper-left">
+          <img id="backforward-btn" src="./img/backforward.png">
+          <img id="play-btn" src="./img/play.png">
+          <img id="pause-btn" src="./img/pause.png">
+          <img id="fastforward-btn" src="./img/fastforward.png">
+        </div>
+        <div class="col-7">
+          <!-- Clock Area -->
+          <div class="clock-container">
+            <div class="clock">
+              <p class="clock-date"></p>
+              <p class="clock-time"></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-2 align-self-center">
+          <select id="mode-select" class="form-select" style="background-color: #daf6ff; color:#0aafe6">
+            <option class="bg-dark text-light" value="TIME_DISP">待ち時間モード</option>
+            <option class="bg-dark text-light" value="PERSON_DISP">担当者モード</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 表示領域：中段 (分析データ、アニメーション、説明表示)-->
+      <div class="row main-container">
+        <!-- Data Analysis Araa -->
+        <div class="col-3 table-col">
+          <table class="table table-dark table-hover data-analysis">
+            <thead>
+            </thead>
+            <tbody>
+              <tr>
+                <td>全処方箋枚数</td>
+                <td id="priscript-cnt"></td>
+              </tr>
+              <tr>
+                <td>待ち時間</td>
+                <td id="wait-time-ave"></td>
+              </tr>
+              <tr>
+                <td>入力時間</td>
+                <td id="input-time"></td>
+              </tr>
+              <tr>
+                <td>処方鑑査時間</td>
+                <td id="pri-kansa-time"></td>
+              </tr>
+              <tr>
+                <td>調剤/鑑査時間</td>
+                <td id="chouzai-kansa-time"></td>
+              </tr>
+              <tr>
+                <td>服薬指導時間</td>
+                <td id="hukuyaku-time"></td>
+              </tr>
+               <tr>
+                <td>勤務薬剤師数</td>
+                <td id="apo-member-all"></td>
+              </tr>
+              <tr>
+                <td>稼働薬剤師数</td>
+                <td id="apo-member-now"></td>
+              </tr>
+              <tr>
+                <td>残置率</td>
+                <td id="zanchi-ratio"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Animation Area -->
+        <div class="col-1 animation-area" id="nyuryoku-div">
+          <canvas id="nyuryoku"></canvas>
+        </div>
+        <div class="col-1 animation-area">
+          <canvas id="prescriptWait"></canvas>
+        </div>
+        <div class="col-1 animation-area">
+          <canvas id="prescript"></canvas>
+        </div>
+        <div class="col-1 animation-area">
+          <canvas id="chouzaiKansa"></canvas>
+        </div>
+        <div class="col-1 animation-area">
+          <canvas id="hukuyakuWait"></canvas>
+        </div>
+        <div class="col-1 animation-area">
+          <canvas id="hukuyaku"></canvas>
+        </div>
+        <div class="col-1 animation-area">
+          <canvas id="zanchi"></canvas>
+        </div>
+        <!-- Discription Area -->
+        <div class="col-2 align-self-center ">
+          <ul id="description-list">
+          </ul>
+        </div>
+      </div>
+
+      <!-- STAGE LABEL -->
+      <div class="row stage-label">
+        <div class="col-3"></div>
+        <div class="col-1 text-center">入力</div>
+        <div class="col-1 text-center">処鑑待ち</div>
+        <div class="col-1 text-center">処方鑑査</div>
+        <div class="col-1 text-center">調剤/鑑査</div>
+        <div class="col-1 text-center">服薬待ち</div>
+        <div class="col-1 text-center">服薬指導</div>
+        <div class="col-1 text-center">残置</div>
+        <div class="col-2">
+        </div>
+      </div>
+
+      <!-- 表示領域：下段 (枚数、待ち時間チャート) -->
+      <div class="chart-area">
+        <canvas id="myChart" width="100%" height="20"></canvas>
+      </div>
+    </div>
+    
+    <!-- raading daga -->
+    <script type="text/javascript" src="./data/data.js"></script>
+    <!-- reading main js script -->
+    <script type="text/javascript" src="./src/main.js"></script>
+    <!-- reading bootstrap js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <!-- reading chart.js  -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+  </body>
+</html>
