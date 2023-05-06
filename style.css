@@ -5,7 +5,7 @@ body {
   background-color: #15151e;
 }
 .navbar {
-  height: 2rem;
+  height: 5vh;
 }
 /* 時計の共通スタイル */
 .clock {
