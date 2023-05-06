@@ -167,7 +167,7 @@ class Patient {
 
     // 高さの計算
     // 初期値を０に設定されているため、初めて表示される際は上から落下してくるように描画 
-    const mYDist = gHeight - MESH - (y * (MESH + 3));
+    const mYDist = gHeight - (MESH+2) - (y * (MESH+2));
     if (mYDist < 0 ) return;                      // ライン上限を超える場合は描画処理は終了
     const mYValue = this.mY.get(stage);
     const mYSet = (mYValue < mYDist) ? mYValue+FALL_SPEED : mYDist; 
