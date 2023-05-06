@@ -192,7 +192,7 @@ class Patient {
       ctx.fillStyle = gTimeColorPallets[this.colorId[0]];
       ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
       ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
-      textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
+      textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
     } else {
       for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
         if (stage === CHOUZAI_KANSA) {
