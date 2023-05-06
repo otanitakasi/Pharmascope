@@ -3,8 +3,8 @@
 // マジックナンバー設定
 const MESH = 15;
 const FALL_SPEED = 6;
-const FORWARD_UNIT = 30 * 60 * 1000;    // 30分進める
-const BACK_UNIT = 30 * 60 * 1000;       // 30分戻す
+const FORWARD_UNIT = 15 * 60 * 1000;    // 30分進める
+const BACK_UNIT = 15 * 60 * 1000;       // 30分戻す
 const WATCH_SPEED = 60;                 // 60倍速
 // シンボル設定
 const NYURYOKU = Symbol();
@@ -167,7 +167,7 @@ class Patient {
 
     // 高さの計算
     // 初期値を０に設定されているため、初めて表示される際は上から落下してくるように描画 
-    const mYDist = gHeight - MESH - (y * (MESH + 5));
+    const mYDist = gHeight - MESH - (y * (MESH + 3));
     if (mYDist < 0 ) return;                      // ライン上限を超える場合は描画処理は終了
     const mYValue = this.mY.get(stage);
     const mYSet = (mYValue < mYDist) ? mYValue+FALL_SPEED : mYDist; 
