@@ -7,6 +7,11 @@ body {
 .navbar {
   height: 5vh;
 }
+
+/* .how-to-content {
+  font-size: small;
+} */
+
 /* 時計の共通スタイル */
 .clock {
   font-family: "Share Tech Mono", monospace;

@@ -36,12 +36,38 @@
               </ul>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">How to</a>
+              <a class="nav-link active" data-bs-toggle="offcanvas" href="#offcanvasExample" aria-current="page" href="#">How to</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
+    
+    <div class="offcanvas offcanvas-start bg-dark bg-gradient text-light" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+      <div class="offcanvas-header">
+        <h3 class="offcanvas-title" id="offcanvasExampleLabel">つかいかた</h3>
+        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div>
+          <h5 class="border-bottom">ボタンの説明</h5>
+          <p class="how-to-content my-0 ms-2">Home : 日付選択画面に戻る</p>
+          <p class="how-to-content my-0 ms-2">Mode : 表示内容の変更(待ち時間 or 担当者)</p>
+          <p class="how-to-content my-0 ms-2">How to : この画面</p>
+          <h5 class="border-bottom mt-3">再生コントロール</h5>
+          <p class="how-to-content my-0 ms-2">左上部の再生ボタンをクリックする</p>
+          <p class="how-to-content my-0 ms-2">もしくは、キーボードを使用する</p>
+          <p class="how-to-content my-0 ms-4">Space Key: 再生の一時停止、再開</p>
+          <p class="how-to-content my-0 ms-4">&rarr; Key: 早送り（15分）</p>
+          <p class="how-to-content my-0 ms-4">&larr; key: 巻戻し（15分）</p>
+          <p class="how-to-content my-0 ms-2">アニメーションエリアのクリックで再生・一時停止切り替え可</p>
+          <h5 class="border-bottom mt-3">統計情報</h5>
+          <p class="how-to-content my-0 ms-2">時間は平均を表示</p>
+          <p class="how-to-content my-0 ms-2">待ち時間は、90分以上もしくは残置処方箋を除いて算出</p>
+          <p class="how-to-content my-0 ms-2">稼働薬剤師数についても同様の条件で算出</p>
+        </div>
+      </div>
+    </div>
     <!-- 分析画面表示 -->
     <div id="main-display" class="container-fluid p-0">
 
@@ -136,7 +162,7 @@
           <canvas id="zanchi"></canvas>
         </div>
         <!-- Discription Area -->
-        <div class="col-2">
+        <div class="col-2 text-light">
             <ul id="description-list">
             </ul>
         </div>
