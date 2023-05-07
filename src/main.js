@@ -281,10 +281,14 @@ function dataAnalysis() {
   let waitTimeCnt = 0;
   let inputTime;
   let inputTimeSum = 0;
+  let preKansaWaitTime;
+  let preKansaWaitTimeSum = 0;
   let preKansaTime;
   let preKansaTimeSum = 0;
   let chouzaiKansaTime;
   let chouzaiKansaTimeSum = 0;
+  let hukuyakuWaitTime;
+  let hukuyakuWaitTimeSum = 0;
   let hukuyakuTime;
   let hukuyakuTimeSum = 0;
   let zanchiCnt = 0;
@@ -292,9 +296,6 @@ function dataAnalysis() {
   const apoMemberTemp = [];
   const opeMemberTemp = [];
   
-  // 受付処方箋枚数
-  gAnalysisiData.priscriptCnt = gPatients.length;
-  document.getElementById('priscript-cnt').innerHTML = `${gAnalysisiData.priscriptCnt} 枚`;
   // タイムゾーンデータの初期化
   gPatientsNumTimeZone = gPatientsNumTimeZone.map(function() {return 0;});
   gWaitTimeAveTimeZone = gWaitTimeAveTimeZone.map(function() {return 0;});
@@ -306,10 +307,14 @@ function dataAnalysis() {
     //　入力開始から服薬指導開始までを待ち時間と定義（残置、90分以上を除く）
     if (patient.person.get(ZANCHI).length === 0) {
       waitTime = (patient.time.get(HUKUYAKU)[0].getTime() - patient.time.get(NYURYOKU)[0].getTime()) / 1000 / 60;
+      preKansaWaitTime = (patient.time.get(PRESCRIPT_WAIT)[1].getTime() - patient.time.get(PRESCRIPT_WAIT)[0].getTime()) / 1000 / 60;
       chouzaiKansaTime = (patient.time.get(KANSA)[1].getTime() - patient.time.get(CHOUZAI)[0].getTime()) / 1000 / 60;
+      hukuyakuWaitTime = (patient.time.get(HUKUYAKU_WAIT)[1].getTime() - patient.time.get(HUKUYAKU_WAIT)[0].getTime()) / 1000 / 60;
       if (waitTime < 90) {
-        waitTimeSum += waitTime;                // 待ち時間加算
-        chouzaiKansaTimeSum += chouzaiKansaTime;// 調剤・鑑査時間
+        waitTimeSum += waitTime;                // 待ち時間合計
+        preKansaWaitTimeSum += preKansaWaitTime;// 処方鑑査待ち時間合計
+        chouzaiKansaTimeSum += chouzaiKansaTime;// 調剤・鑑査時間合計
+        hukuyakuWaitTimeSum += hukuyakuWaitTime;// 服薬指導待ち時間合計
         waitTimeCnt++;
 
         // １時間毎の待ち時間をカウント（平均の計算はループが抜けた後）
@@ -354,18 +359,27 @@ function dataAnalysis() {
     }
   }
 
+  // 受付処方箋枚数
+  gAnalysisiData.priscriptCnt = gPatients.length;
+  document.getElementById('priscript-cnt').innerHTML = `${gAnalysisiData.priscriptCnt} 枚`;
   //　平均待ち時間
   gAnalysisiData.waitTimeAve = (waitTimeSum / waitTimeCnt).toFixed(1);
   document.getElementById('wait-time-ave').innerHTML = `${gAnalysisiData.waitTimeAve} 分`;
   //  平均入力時間
   gAnalysisiData.inputTimeAve = (inputTimeSum / gPatients.length).toFixed(1);
   document.getElementById('input-time').innerHTML = `${gAnalysisiData.inputTimeAve} 分`;
+  //  平均処方鑑査待ち時間
+  gAnalysisiData.preKansaWaitTimeAve = (preKansaWaitTimeSum / waitTimeCnt).toFixed(1);
+  document.getElementById('pri-kansa-wait-time').innerHTML = `${gAnalysisiData.preKansaWaitTimeAve} 分`;
   //  平均処方鑑査時間
   gAnalysisiData.preKansaTimeAve = (preKansaTimeSum / gPatients.length).toFixed(1);
   document.getElementById('pri-kansa-time').innerHTML = `${gAnalysisiData.preKansaTimeAve} 分`;
   //  平均調剤・鑑査時間
   gAnalysisiData.chouzaiKansaTimeAve = (chouzaiKansaTimeSum / waitTimeCnt).toFixed(1);
   document.getElementById('chouzai-kansa-time').innerHTML = `${gAnalysisiData.chouzaiKansaTimeAve} 分`;
+  //  平均服薬指導待ち時間
+  gAnalysisiData.hukuyakuWaitTimeAve = (hukuyakuWaitTimeSum / waitTimeCnt).toFixed(1);
+  document.getElementById('hukuyaku-wait-time').innerHTML = `${gAnalysisiData.hukuyakuWaitTimeAve} 分`;
   //  平均服薬指導時間
   gAnalysisiData.hukuyakuTimeAve = (hukuyakuTimeSum / gPatients.length).toFixed(1);
   document.getElementById('hukuyaku-time').innerHTML = `${gAnalysisiData.hukuyakuTimeAve} 分`;
