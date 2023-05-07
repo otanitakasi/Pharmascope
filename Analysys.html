@@ -14,34 +14,66 @@
   </head>
   <body>
     <!-- ナビゲーションバーの表示 -->
-    <nav class="navbar navbar-expand-md navbar-light bg-light p-0 m-0">
+    <nav class="navbar navbar-expand-sm navbar-light bg-light">
       <div class="container-fluid">
-
-        <div class="collaps e navbar-collapse" id="navbarSupportedContent">
+        <!-- <a class="navbar-brand" href="./index.html">Home</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button> -->
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="./index.html">Home</a>
             </li>
-          </ul>
-          <ul class="navbar-nav mb-lg-0">
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Mode
               </a>
               <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="#">待ち時間表示</a></li>
-                <li><a class="dropdown-item" href="#">担当者表示</a></li>
+                <li><a class="dropdown-item" href="#" id="time-mode">待ち時間表示</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" id="person-mode">担当者表示</a></li>
               </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" data-bs-toggle="offcanvas" href="#offcanvasExample" aria-current="page" href="#">How to</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
+    
+    <div class="offcanvas offcanvas-start bg-dark bg-gradient text-light" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+      <div class="offcanvas-header">
+        <h3 class="offcanvas-title" id="offcanvasExampleLabel">つかいかた</h3>
+        <button type="button" class="btn-close btn-close-white text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div>
+          <h5 class="border-bottom">ボタンの説明</h5>
+          <p class="how-to-content my-0 ms-2">Home : 日付選択画面に戻る</p>
+          <p class="how-to-content my-0 ms-2">Mode : 表示内容の変更(待ち時間 or 担当者)</p>
+          <p class="how-to-content my-0 ms-2">How to : この画面</p>
+          <h5 class="border-bottom mt-3">再生コントロール</h5>
+          <p class="how-to-content my-0 ms-2">左上部の再生ボタンをクリックする</p>
+          <p class="how-to-content my-0 ms-2">もしくは、キーボードを使用する</p>
+          <p class="how-to-content my-0 ms-4">Space Key: 再生の一時停止、再開</p>
+          <p class="how-to-content my-0 ms-4">&rarr; Key: 早送り（15分）</p>
+          <p class="how-to-content my-0 ms-4">&larr; key: 巻戻し（15分）</p>
+          <p class="how-to-content my-0 ms-2">アニメーションエリアのクリックで再生・一時停止切り替え可</p>
+          <h5 class="border-bottom mt-3">統計情報</h5>
+          <p class="how-to-content my-0 ms-2">時間は平均を表示</p>
+          <p class="how-to-content my-0 ms-2">待ち時間は、90分以上もしくは残置処方箋を除いて算出</p>
+          <p class="how-to-content my-0 ms-2">稼働薬剤師数についても同様の条件で算出</p>
+          <p class="how-to-content my-0 ms-2">調剤/鑑査時間は処方鑑査終了から鑑査終了までの時間</p>
+        </div>
+      </div>
+    </div>
     <!-- 分析画面表示 -->
     <div id="main-display" class="container-fluid p-0">
 
       <!-- 表示領域：上段 (再生コントローラー、時計) -->
-      <div class="row pt-2">
+      <div class="row pt-3">
         <div class="col-3  d-flex align-items-center justify-content-center">
           <img class="p-1" id="backforward-btn" src="./img/backforward.png">
           <img class="p-1" id="play-btn" src="./img/play.png">
@@ -58,10 +90,6 @@
           </div>
         </div>
         <div class="col-2 align-self-center">
-          <select id="mode-select" class="form-select" style="background-color: #daf6ff; color:#0aafe6">
-            <option class="bg-dark text-light" value="TIME_DISP">待ち時間モード</option>
-            <option class="bg-dark text-light" value="PERSON_DISP">担当者モード</option>
-          </select>
         </div>
       </div>
 
@@ -86,12 +114,20 @@
                 <td id="input-time"></td>
               </tr>
               <tr>
+                <td>処方鑑査待ち時間</td>
+                <td id="pri-kansa-wait-time"></td>
+              </tr>
+              <tr>
                 <td>処方鑑査時間</td>
                 <td id="pri-kansa-time"></td>
               </tr>
               <tr>
                 <td>調剤/鑑査時間</td>
                 <td id="chouzai-kansa-time"></td>
+              </tr>
+              <tr>
+                <td>服薬指導待ち時間</td>
+                <td id="hukuyaku-wait-time"></td>
               </tr>
               <tr>
                 <td>服薬指導時間</td>
@@ -135,14 +171,14 @@
           <canvas id="zanchi"></canvas>
         </div>
         <!-- Discription Area -->
-        <div class="col-2">
+        <div class="col-2 text-light">
             <ul id="description-list">
             </ul>
         </div>
       </div>
 
       <!-- STAGE LABEL -->
-      <div class="row stage-label">
+      <div class="row stage-label m-1">
         <div class="col-3"></div>
         <div class="col-1 text-center">入力</div>
         <div class="col-1 text-center">処鑑待ち</div>

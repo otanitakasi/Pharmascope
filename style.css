@@ -5,8 +5,13 @@ body {
   background-color: #15151e;
 }
 .navbar {
-  height: 2rem;
+  height: 5vh;
 }
+
+/* .how-to-content {
+  font-size: small;
+} */
+
 /* 時計の共通スタイル */
 .clock {
   font-family: "Share Tech Mono", monospace;
@@ -26,7 +31,7 @@ body {
 
 /* メイン領域を囲うコンテナー */
 .main-container {
-  height: 15rem;
+  height: 17rem;
   font-family: "Noto Sans JP";
   color: #daf6ff;
   text-shadow: 0 0 20px #0aafe6;

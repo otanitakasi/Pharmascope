@@ -3,8 +3,8 @@
 // マジックナンバー設定
 const MESH = 15;
 const FALL_SPEED = 6;
-const FORWARD_UNIT = 30 * 60 * 1000;    // 30分進める
-const BACK_UNIT = 30 * 60 * 1000;       // 30分戻す
+const FORWARD_UNIT = 15 * 60 * 1000;    // 30分進める
+const BACK_UNIT = 15 * 60 * 1000;       // 30分戻す
 const WATCH_SPEED = 60;                 // 60倍速
 // シンボル設定
 const NYURYOKU = Symbol();
@@ -16,6 +16,8 @@ const CHOUZAI_KANSA = Symbol();
 const HUKUYAKU_WAIT = Symbol();
 const HUKUYAKU = Symbol();
 const ZANCHI = Symbol();
+const MODE_TIME = Symbol();
+const MODE_PERSON = Symbol();
 // グローバル変数
 let gTime = new Date();
 let gCalendarTime = new Date();
@@ -73,6 +75,8 @@ for (let line of gCanvas.keys()) {
 ////////////////////////////////////////////////////////
 // その他要素取得
 const gModeSelecter = document.getElementById('mode-select');
+const gTimeModeElm = document.getElementById('time-mode');
+const gPersonModeElm = document.getElementById('person-mode');
 const gPlayBtn = document.getElementById('play-btn');
 const gPauseBtn = document.getElementById('pause-btn');
 const gBackForwardBtn = document.getElementById('backforward-btn');
@@ -163,7 +167,7 @@ class Patient {
 
     // 高さの計算
     // 初期値を０に設定されているため、初めて表示される際は上から落下してくるように描画 
-    const mYDist = gHeight - MESH - (y * (MESH + 5));
+    const mYDist = gHeight - (MESH+2) - (y * (MESH+2));
     if (mYDist < 0 ) return;                      // ライン上限を超える場合は描画処理は終了
     const mYValue = this.mY.get(stage);
     const mYSet = (mYValue < mYDist) ? mYValue+FALL_SPEED : mYDist; 
@@ -186,13 +190,13 @@ class Patient {
     // 待ち時間モード　or 担当者モード
     // 待ち時間モード：入力開始からの経過時間により色を設定する
     const passTime = (gTime.getTime() - this.time.get(NYURYOKU)[0].getTime())/60000;   // 経過時間（分）
-    if (gDescriptionMode === 'TIME_DISP') {
+    if (gDescriptionMode === MODE_TIME) {
       this.colorId[0] = (passTime < 10) ? 0 : (passTime < 20) ? 1 : (passTime < 30) ? 2
                       : (passTime < 40) ? 3 : 4;
       ctx.fillStyle = gTimeColorPallets[this.colorId[0]];
       ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
       ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
-      textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
+      textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
     } else {
       for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
         if (stage === CHOUZAI_KANSA) {
@@ -213,16 +217,16 @@ class Patient {
         ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
         ctx.fillStyle = gPersonColorPallets[this.colorId[1]];
         ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
-        textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
+        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
       } else if ((stage===PRESCRIPT_WAIT)||(stage===HUKUYAKU_WAIT)||(stage===ZANCHI)) {
         ctx.strokeStyle = "#daf6ff";
         ctx.strokeRect(this.width/30, this.mY.get(stage), this.width-this.width/10, MESH);  // 待ち状態では塗りつぶしはなし
-        textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
+        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
       } else {
         ctx.fillStyle = gPersonColorPallets[this.colorId[0]];
         ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
         ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
-        textDisp(ctx, this.id, this.width/2-this.width/15, this.mY.get(stage)+MESH-MESH/10);
+        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
       }
     }
   }
@@ -272,7 +276,6 @@ function Animationdraw() {
 ///////////////////////////////////////////////////////
 // データ分析
 function dataAnalysis() {
-  
   let waitTime;
   let waitTimeSum = 0;
   let waitTimeCnt = 0;
@@ -320,7 +323,6 @@ function dataAnalysis() {
         );
       }
     }
-
     // １時間毎の処方箋枚数をカウント
     gPatientsNumTimeZone = gPatientsNumTimeZone.map(function(value, index) {
         if ((timeISFromStart >= (60*index)) && (timeISFromStart < (60*(index+1)))) {
@@ -330,8 +332,6 @@ function dataAnalysis() {
         }
       }
     );
-
-  
     // 入力時間
     inputTime = (patient.time.get(NYURYOKU)[1].getTime() - patient.time.get(NYURYOKU)[0].getTime()) / 1000 / 60;
     inputTimeSum += inputTime;
@@ -390,8 +390,6 @@ function dataAnalysis() {
 ///////////////////////////////////////////////////////
 // 表示説明領域
 function descriptonUpdate() {
-  gDescriptionMode = gModeSelecter.value;
-
   const ul = document.getElementById("description-list");
   const li = [];
 
@@ -399,7 +397,7 @@ function descriptonUpdate() {
     ul.removeChild(ul.firstChild);
   }
 
-  if (gDescriptionMode === 'TIME_DISP') {     // 待ち時間表示モード
+  if (gDescriptionMode === MODE_TIME) {     // 待ち時間表示モード
     const textTimes = ['0-10 min', '10-20 min', '20-30 min', '30-40 min', '40 min over'];
     for (let i=0; i<textTimes.length; i++) {
       li[i] = document.createElement('li');
@@ -513,7 +511,7 @@ function chartDraw() {
 window.onload = function () {
   gTimerStopFlag = 1;
   gSpeedController = WATCH_SPEED;  // 60倍速で表示
-
+  gDescriptionMode = MODE_TIME;
   init();
 };
 
@@ -670,9 +668,13 @@ for (let line  of gCanvas.keys()) {
 }
 
 //　表示モード切替
-gModeSelecter.addEventListener("change", (e) => {
+gTimeModeElm.addEventListener("click", (e) => {
+  gDescriptionMode = MODE_TIME;
   descriptonUpdate();
-  gDescriptionMode = gModeSelecter.value;
+});
+gPersonModeElm.addEventListener("click", (e) => {
+  gDescriptionMode = MODE_PERSON;
+  descriptonUpdate();
 });
 
 
