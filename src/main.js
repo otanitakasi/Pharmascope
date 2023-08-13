@@ -397,7 +397,7 @@ function dataAnalysis() {
   document.getElementById('zanchi-ratio').innerHTML = `${gAnalysisiData.zanchiRatio} %`;
   // １時間ごとの平均待ち時間を計算
   gWaitTimeAveTimeZone = gWaitTimeAveTimeZone.map(
-    function(value, index) { return value / gPatientsNumTimeZone[index]}
+    function(value, index) { return (gPatientsNumTimeZone[index] === 0) ? 0 : (value / gPatientsNumTimeZone[index])}
   );
 }
 
@@ -535,7 +535,7 @@ function init() {
   // 開始時刻設定(デファルトは8時)
   gTime = gCalendarTime;
   gTime.setFullYear(2023);          //　デモ時日付固定
-  gTime.setMonth(2);                //　デモ時日付固定
+  gTime.setMonth(7);                //　デモ時日付固定
   gTime.setDate(13);                //　デモ時日付固定
   gTime.setHours(8);
   gTime.setMinutes(0);
