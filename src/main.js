@@ -196,7 +196,7 @@ class Patient {
       ctx.fillStyle = gTimeColorPallets[this.colorId[0]];
       ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
       ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
-      textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
+      textDisp(ctx, this.id, this.width/2-this.width/13, this.mY.get(stage)+MESH-MESH/10);
     } else {
       for (let i=0; i<gAnalysisiData.AllMember.length; i++) {
         if (stage === CHOUZAI_KANSA) {
@@ -217,16 +217,16 @@ class Patient {
         ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
         ctx.fillStyle = gPersonColorPallets[this.colorId[1]];
         ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
-        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
+        textDisp(ctx, this.id, this.width/2-this.width/13, this.mY.get(stage)+MESH-MESH/10);
       } else if ((stage===PRESCRIPT_WAIT)||(stage===HUKUYAKU_WAIT)||(stage===ZANCHI)) {
         ctx.strokeStyle = "#daf6ff";
         ctx.strokeRect(this.width/30, this.mY.get(stage), this.width-this.width/10, MESH);  // 待ち状態では塗りつぶしはなし
-        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
+        textDisp(ctx, this.id, this.width/2-this.width/13, this.mY.get(stage)+MESH-MESH/10);
       } else {
         ctx.fillStyle = gPersonColorPallets[this.colorId[0]];
         ctx.fillRect(this.width/30, this.mY.get(stage), this.width*3/8, MESH);
         ctx.fillRect(this.width*5/8, this.mY.get(stage), this.width*3/8-this.width/30, MESH);
-        textDisp(ctx, this.id, this.width/2-this.width/20, this.mY.get(stage)+MESH-MESH/10);
+        textDisp(ctx, this.id, this.width/2-this.width/13, this.mY.get(stage)+MESH-MESH/10);
       }
     }
   }
